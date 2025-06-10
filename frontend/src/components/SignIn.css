@@ -1,0 +1,79 @@
+/* Animated Background for Quick Deliver Lite */
+@keyframes bgMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .signin-container {
+    height: 100vh;
+    background-size: 600% 600%;
+    animation: bgMove 12s ease infinite;
+  }  
+  
+  /* Signin Card Styling */
+  .signin-card {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    padding: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .signin-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(90deg, #007bff, #00c6ff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+    display: inline-block;
+  }
+  
+  /* Button Gradient Styles */
+  .btn-gradient {
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    color: white;
+    border: none;
+    transition: background 0.3s ease;
+  }
+  
+  .btn-gradient:hover {
+    background: linear-gradient(to right, #0056b3, #0094cc);
+  }
+  
+  /* Fade-in Animation */
+  .animate-fade-in {
+    animation: fadeIn 1s ease forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    } 
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Optional Background Shift (if you want to switch back) */
+  @keyframes backgroundShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* Focus Effects */
+  input:focus, select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+  }
+  
