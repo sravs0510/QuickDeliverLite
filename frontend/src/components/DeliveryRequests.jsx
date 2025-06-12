@@ -14,7 +14,7 @@ const DeliveryRequests = () => {
 
     const fetchRequests = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/delivery');
+        const res = await axios.get(`http://localhost:5000/api/delivery/customer/${userEmail}`);
         // Filter for pending only and sort by latest timestamp
         const pending = res.data
           .filter(req => req.status === 'Pending')
