@@ -37,6 +37,8 @@ const Dashboard = () => {
       return;
     }
 
+    const email = localStorage.getItem('userEmail'); // moved inside function
+
     const deliveryRequest = {
       pickupAddress,
       dropoffAddress,
@@ -47,9 +49,10 @@ const Dashboard = () => {
       packageType,
       mobileNumber,
       status: "Pending",
-      email: userEmail,
+      email, // now always included
       timestamp: new Date().toISOString()
     };
+
 
     try {
       const response = await axios.post('http://localhost:5000/api/delivery', deliveryRequest);
