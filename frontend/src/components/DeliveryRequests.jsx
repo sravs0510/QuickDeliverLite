@@ -44,6 +44,7 @@ const DeliveryRequests = () => {
                 <th>Package Type</th>
                 <th>Note</th>
                 <th>Requested At</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -54,6 +55,7 @@ const DeliveryRequests = () => {
                   <td>{req.packageType}</td>
                   <td>{req.note || '-'}</td>
                   <td>{new Date(req.timestamp).toLocaleString()}</td>
+                  <td>{req.status}</td>
                 </tr>
               ))}
             </tbody>
