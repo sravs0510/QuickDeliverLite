@@ -26,24 +26,29 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Reset Your Password</h2>
+    <div className="max-w-md mx-auto mt-20 px-4">
+      <h2 className="text-2xl font-semibold mb-6 text-center text-blue-600">Reset Your Password</h2>
       <form onSubmit={handleReset}>
         <input
           type="password"
-          className="form-control mb-3"
+          className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="New Password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
         <input
           type="password"
-          className="form-control mb-3"
+          className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
-        <button type="submit" className="btn btn-primary">Reset Password</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-all"
+        >
+          Reset Password
+        </button>
       </form>
     </div>
   );

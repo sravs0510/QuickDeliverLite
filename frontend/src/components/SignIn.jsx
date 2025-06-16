@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
-import './SignIn.css';
+import {
+  LogIn,
+  Shield,
+  MailOpen,
+  Lock,
+  Key,
+  Send,
+  ArrowRight,
+  Eye,
+  UserPlus,
+} from "lucide-react";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -11,15 +19,31 @@ export default function SignIn() {
   const [otp, setOtp] = useState("");
   const [mode, setMode] = useState("password");
   const [otpSent, setOtpSent] = useState(false);
-
+  const [focused, setFocused] = useState({
+    email: false,
+    password: false,
+    otp: false
+  });
   const navigate = useNavigate();
+
+  // Check if label should float
+  const shouldFloat = (field) => {
+    return (
+      (field === "email" && (email || focused.email)) ||
+      (field === "password" && (password || focused.password)) ||
+      (field === "otp" && (otp || focused.otp))
+    );
+  };
 
   const handlePasswordLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) return alert("Please fill all fields");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
       const { token, user } = res.data;
       localStorage.setItem("token", token);
       localStorage.setItem("userRole", user.role);
@@ -51,7 +75,10 @@ export default function SignIn() {
     if (!email || !otp) return alert("Enter both email and OTP");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/verify-otp", { email, otp });
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/verify-otp",
+        { email, otp }
+      );
       const { token, user } = res.data;
       localStorage.setItem("token", token);
       localStorage.setItem("userRole", user.role);
@@ -70,115 +97,162 @@ export default function SignIn() {
   };
 
   return (
-    <div className="signin-container d-flex align-items-center justify-content-center">
-      <div className="signin-card p-4 shadow-sm animate-fade-in">
-        <h3 className="text-center mb-4 gradient-text">
-          <i className="bi bi-box-arrow-in-right me-2"></i>Sign in to your account
+    <div className="min-h-screen animate-bgMove flex items-center justify-center px-4">
+      <div className="bg-white rounded-xl w-full max-w-md p-6 shadow hover:scale-105 hover:shadow-lg transition-transform animate-fade-in">
+        <h3 className="text-center mb-6 bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-text text-transparent font-bold text-xl flex justify-center items-center gap-2">
+          <LogIn className="w-5 h-5" />
+          Sign in to your account
         </h3>
 
-        <div className="d-flex justify-content-center mb-3">
+        <div className="flex justify-center mb-4 space-x-2">
           <button
-            className={`btn btn-outline-primary me-2 ${mode === "password" ? "active" : ""}`}
-            onClick={() => {
-              setMode("password");
-            }}
+            className={`px-4 py-2 border rounded flex items-center gap-1 ${
+              mode === "password"
+                ? "text-blue-600 border-blue-600"
+                : "text-gray-600 border-gray-400"
+            }`}
+            onClick={() => setMode("password")}
           >
-            <i className="bi bi-shield-lock-fill me-1"></i> Password
+            <Shield className="w-4 h-4" /> Password
           </button>
           <button
-            className={`btn btn-outline-secondary ${mode === "otp" ? "active" : ""}`}
-            onClick={() => {
-              setMode("otp");
-            }}
+            className={`px-4 py-2 border rounded flex items-center gap-1 ${
+              mode === "otp"
+                ? "text-blue-600 border-blue-600"
+                : "text-gray-600 border-gray-400"
+            }`}
+            onClick={() => setMode("otp")}
           >
-            <i className="bi bi-envelope-open-fill me-1"></i> OTP
+            <MailOpen className="w-4 h-4" /> OTP
           </button>
         </div>
 
-        <form onSubmit={mode === "password" ? handlePasswordLogin : handleVerifyOtp}>
-          <div className="form-floating mb-3">
+        <form
+          onSubmit={mode === "password" ? handlePasswordLogin : handleVerifyOtp}
+          className="space-y-4"
+        >
+          {/* Email Field */}
+          <div className="relative mb-4">
             <input
+              name="email"
               type="email"
-              className="form-control"
-              placeholder="Enter email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              onFocus={() => setFocused(f => ({...f, email: true}))}
+              onBlur={() => setFocused(f => ({...f, email: false}))}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none transition-colors"
             />
-            <label><i className="bi bi-envelope-fill me-2"></i>Email</label>
+            <label className={`absolute left-4 transition-all duration-300 pointer-events-none
+              ${shouldFloat("email") 
+                ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+                : 'top-3 text-gray-500'}`}
+            >
+              <MailOpen className="inline w-4 h-4 mr-1" />
+              Email
+            </label>
           </div>
 
           {mode === "password" && (
-            <div className="form-floating mb-3">
+            <div className="relative">
               <input
+                name="password"
                 type="password"
-                className="form-control"
-                placeholder="Enter password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                onFocus={() => setFocused(f => ({...f, password: true}))}
+                onBlur={() => setFocused(f => ({...f, password: false}))}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none transition-colors"
               />
-              <label><i className="bi bi-lock-fill me-2"></i>Password</label>
+              <label className={`absolute left-4 transition-all duration-300 pointer-events-none
+                ${shouldFloat("password") 
+                  ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+                  : 'top-3 text-gray-500'}`}
+              >
+                <Lock className="inline w-4 h-4 mr-1" />
+                Password
+              </label>
             </div>
           )}
 
           {mode === "otp" && (
             <>
               {!otpSent ? (
-                <div className="d-grid mb-3">
-                  <button type="button" className="btn btn-gradient" onClick={handleSendOtp}>
-                    <i className="bi bi-send-check-fill me-2"></i>Send OTP
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-400 text-white py-2 rounded transition flex items-center justify-center gap-2"
+                  onClick={handleSendOtp}
+                >
+                  <Send className="w-4 h-4" />
+                  Send OTP
+                </button>
               ) : (
-                <div className="form-floating mb-3">
+                <div className="relative">
                   <input
+                    name="otp"
                     type="text"
-                    className="form-control"
-                    placeholder="Enter OTP"
+                    required
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    required
+                    onFocus={() => setFocused(f => ({...f, otp: true}))}
+                    onBlur={() => setFocused(f => ({...f, otp: false}))}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none transition-colors"
                   />
-                  <label><i className="bi bi-key-fill me-2"></i>Enter OTP</label>
+                  <label className={`absolute left-4 transition-all duration-300 pointer-events-none
+                    ${shouldFloat("otp") 
+                      ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+                      : 'top-3 text-gray-500'}`}
+                  >
+                    <Key className="inline w-4 h-4 mr-1" />
+                    Enter OTP
+                  </label>
                 </div>
               )}
             </>
           )}
 
-          <div className="d-grid mb-3">
-            <button type="submit" className="btn btn-gradient">
-              <i className="bi bi-box-arrow-in-right me-2"></i>Login
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-cyan-400 text-white py-2 rounded transition flex justify-center items-center gap-2"
+          >
+            <ArrowRight className="w-4 h-4" /> Login
+          </button>
 
-          {/* Forgot Password Option */}
           {mode === "password" && (
-            <div className="text-end mb-3">
+            <div className="flex justify-end">
               <button
                 type="button"
-                className="btn btn-link text-decoration-none p-0"
+                className="text-blue-600 text-sm"
                 onClick={() => navigate("/forgot-password")}
               >
                 Forgot Password?
               </button>
-
             </div>
           )}
 
-          <div className="d-grid mb-3">
-            <button type="button" className="btn btn-light border" onClick={handleGoogleLogin}>
-              <img
-                src="https://developers.google.com/identity/images/g-logo.png"
-                alt="Google"
-                style={{ width: "20px", marginRight: "10px" }}
-              />
-              Login with Google
-            </button>
-          </div>
+          <button
+            type="button"
+            className="w-full border border-gray-300 rounded py-2 mt-2 flex items-center justify-center gap-2 hover:bg-gray-100"
+            onClick={handleGoogleLogin}
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              className="w-5 h-5"
+            />
+            Login with Google
+          </button>
 
-          <p className="text-center mt-3 text-muted">
-            Don’t have an account? <a href="/signup" className="text-decoration-none fw-bold">Sign Up</a>
+          <p className="text-center text-gray-600 text-sm mt-4">
+            Don’t have an account?{" "}
+            <a
+              href="/signup"
+              className="font-bold text-blue-600 hover:underline inline-flex items-center gap-1"
+            >
+              <UserPlus className="w-4 h-4" />
+              Sign Up
+            </a>
           </p>
         </form>
       </div>

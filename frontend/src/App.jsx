@@ -8,13 +8,15 @@ import GoogleSuccess from './components/GoogleSuccess';
 import GoogleFailure from './components/GoogleFailure';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
-import DeliveryRequests from './components/DeliveryRequests'; // 🆕 import
+import DeliveryRequests from './components/DeliveryRequests';
+import Home from './components/Home';
 
 const App = () => {
   return (
     <Router>
       <Navbar />
       <Routes>
+        <Route path="/" element={<Home />}/>
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="/dashboard" element={<Dashboard />} />

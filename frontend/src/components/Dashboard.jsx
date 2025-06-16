@@ -37,7 +37,7 @@ const Dashboard = () => {
       return;
     }
 
-    const email = localStorage.getItem('userEmail'); // moved inside function
+    const email = localStorage.getItem('userEmail');
 
     const deliveryRequest = {
       pickupAddress,
@@ -49,10 +49,9 @@ const Dashboard = () => {
       packageType,
       mobileNumber,
       status: "Pending",
-      email, // now always included
+      email,
       timestamp: new Date().toISOString()
     };
-
 
     try {
       const response = await axios.post('http://localhost:5000/api/delivery', deliveryRequest);
@@ -74,23 +73,27 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <div className="text-center mb-4">
-        <h2>Welcome, {role}!</h2>
+    <div className="max-w-5xl mx-auto mt-12 px-4">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold">Welcome, {role}!</h2>
       </div>
 
       {role === 'Customer' && (
-        <div className="card shadow-lg p-4 mx-auto" style={{ maxWidth: "650px", borderRadius: "20px" }}>
-          <h4 className="mb-4 text-primary text-center">Create a Delivery Request</h4>
+        <div className="bg-white shadow-lg p-6 rounded-2xl max-w-2xl mx-auto">
+          <h4 className="mb-4 text-blue-600 text-center text-lg font-semibold">Create a Delivery Request</h4>
 
-          {message && <div className="alert alert-info text-center">{message}</div>}
+          {message && (
+            <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded mb-4 text-center">
+              {message}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group mb-3">
-              <label>Pickup Address *</label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Pickup Address *</label>
               <input
                 type="text"
-                className="form-control"
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder="e.g. 123 Main St, Hyderabad"
                 value={pickupAddress}
                 onChange={(e) => setPickupAddress(e.target.value)}
@@ -99,11 +102,11 @@ const Dashboard = () => {
               />
             </div>
 
-            <div className="form-group mb-3">
-              <label>Dropoff Address *</label>
+            <div>
+              <label className="block font-medium mb-1">Dropoff Address *</label>
               <input
                 type="text"
-                className="form-control"
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder="e.g. 456 Market Rd, Bangalore"
                 value={dropoffAddress}
                 onChange={(e) => setDropoffAddress(e.target.value)}
@@ -111,10 +114,10 @@ const Dashboard = () => {
               />
             </div>
 
-            <div className="form-group mb-3">
-              <label>Note About Package</label>
+            <div>
+              <label className="block font-medium mb-1">Note About Package</label>
               <textarea
-                className="form-control"
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 rows="3"
                 placeholder="e.g. Fragile item, handle with care"
                 value={note}
@@ -122,11 +125,11 @@ const Dashboard = () => {
               ></textarea>
             </div>
 
-            <div className="form-group mb-3">
-              <label>Mobile Number *</label>
+            <div>
+              <label className="block font-medium mb-1">Mobile Number *</label>
               <input
                 type="tel"
-                className="form-control"
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder="e.g. 9876543210"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
@@ -134,22 +137,23 @@ const Dashboard = () => {
               />
             </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label>Preferred Delivery Date *</label>
+            <div className="md:flex gap-4">
+              <div className="md:w-1/2">
+                <label className="block font-medium mb-1">Preferred Delivery Date *</label>
                 <input
                   type="date"
-                  className="form-control"
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={deliveryDate}
                   onChange={(e) => setDeliveryDate(e.target.value)}
                   required
                 />
               </div>
-              <div className="col-md-6 mb-3">
-                <label>Preferred Delivery Time *</label>
+
+              <div className="md:w-1/2">
+                <label className="block font-medium mb-1">Preferred Delivery Time *</label>
                 <input
                   type="time"
-                  className="form-control"
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={deliveryTime}
                   onChange={(e) => setDeliveryTime(e.target.value)}
                   required
@@ -157,22 +161,23 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label>Package Weight (kg)</label>
+            <div className="md:flex gap-4">
+              <div className="md:w-1/2">
+                <label className="block font-medium mb-1">Package Weight (kg)</label>
                 <input
                   type="number"
-                  className="form-control"
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                   min="0"
                   placeholder="e.g. 2.5"
                 />
               </div>
-              <div className="col-md-6 mb-4">
-                <label>Package Type</label>
+
+              <div className="md:w-1/2">
+                <label className="block font-medium mb-1">Package Type</label>
                 <select
-                  className="form-select"
+                  className="w-full border border-gray-300 rounded px-4 py-2"
                   value={packageType}
                   onChange={(e) => setPackageType(e.target.value)}
                 >
@@ -185,7 +190,10 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-success w-100 rounded-pill">
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full w-full transition"
+            >
               Submit Delivery Request
             </button>
           </form>

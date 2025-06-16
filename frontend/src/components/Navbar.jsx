@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
   const token = localStorage.getItem('token');
@@ -13,54 +12,54 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light px-4 shadow-sm">
-      <Link className="navbar-brand fw-bold text-primary" to="/">
-        QuickDeliver <span className="text-info">Lite</span>
-      </Link>
+    <nav className="bg-gray-100 shadow-sm px-4 py-3">
+      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
+        {/* Brand */}
+        <Link to="/" className="text-xl font-bold text-blue-600">
+          QuickDeliver <span className="text-cyan-500">Lite</span>
+        </Link>
 
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
+        
+        {/* Navigation Links */}
+        <div className="w-full md:w-auto mt-3 md:mt-0 flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4">
+          <Link to="/" className="text-gray-700 hover:text-blue-600">
+            Home
+          </Link>
+          <Link to="/orders" className="text-gray-700 hover:text-blue-600">
+            Orders
+          </Link>
+          <Link to="/track" className="text-gray-700 hover:text-blue-600">
+            Track Delivery
+          </Link>
+          <Link to="/feedback" className="text-gray-700 hover:text-blue-600">
+            Feedback
+          </Link>
 
-      <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav ms-auto align-items-center">
-          <li className="nav-item">
-            <Link className="nav-link" to="/orders">Orders</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/track">Track Delivery</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/feedback">Feedback</Link>
-          </li>
-
-          {/* Show View Requests if logged in */}
           {token && (
-            <li className="nav-item">
-              <Link className="nav-link btn btn-outline-success ms-2" to="/delivery-requests">
-                View Requests
-              </Link>
-            </li>
+            <Link
+              to="/delivery-requests"
+              className="border border-green-500 text-green-600 hover:bg-green-500 hover:text-white px-3 py-1 rounded transition"
+            >
+              View Requests
+            </Link>
           )}
 
-          {/* Auth Button */}
           {!token ? (
-            <li className="nav-item">
-              <Link className="nav-link btn btn-outline-primary ms-2" to="/login">Login</Link>
-            </li>
+            <Link
+              to="/login"
+              className="border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white px-3 py-1 rounded transition"
+            >
+              Login
+            </Link>
           ) : (
-            <li className="nav-item">
-              <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>
-                Logout
-              </button>
-            </li>
+            <button
+              onClick={handleLogout}
+              className="border border-red-500 text-red-600 hover:bg-red-500 hover:text-white px-3 py-1 rounded transition"
+            >
+              Logout
+            </button>
           )}
-        </ul>
+        </div>
       </div>
     </nav>
   );

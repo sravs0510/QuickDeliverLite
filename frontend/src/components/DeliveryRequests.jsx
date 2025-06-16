@@ -15,7 +15,6 @@ const DeliveryRequests = () => {
     const fetchRequests = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/delivery/customer/${userEmail}`);
-        // Filter for pending only and sort by latest timestamp
         const pending = res.data
           .filter(req => req.status === 'Pending')
           .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -29,33 +28,40 @@ const DeliveryRequests = () => {
   }, []);
 
   return (
-    <div className="container mt-5">
-      <h3 className="text-center mb-4 text-primary">Pending Delivery Requests</h3>
+    <div className="max-w-6xl mx-auto mt-12 px-4">
+      <h3 className="text-center mb-6 text-blue-600 text-xl font-semibold">
+        Pending Delivery Requests
+      </h3>
 
       {requests.length === 0 ? (
-        <p className="text-center">No pending requests available.</p>
+        <p className="text-center text-gray-600">No pending requests available.</p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover shadow-sm">
-            <thead className="table-dark">
+        <div className="overflow-x-auto bg-white rounded shadow-sm">
+          <table className="w-full border border-gray-300 table-auto">
+            <thead className="bg-gray-800 text-white">
               <tr>
-                <th>Pickup</th>
-                <th>Dropoff</th>
-                <th>Package Type</th>
-                <th>Note</th>
-                <th>Requested At</th>
-                <th>Status</th>
+                <th className="px-4 py-2 border">Pickup</th>
+                <th className="px-4 py-2 border">Dropoff</th>
+                <th className="px-4 py-2 border">Package Type</th>
+                <th className="px-4 py-2 border">Note</th>
+                <th className="px-4 py-2 border">Requested At</th>
+                <th className="px-4 py-2 border">Status</th>
               </tr>
             </thead>
             <tbody>
               {requests.map((req, index) => (
-                <tr key={index}>
-                  <td>{req.pickupAddress}</td>
-                  <td>{req.dropoffAddress}</td>
-                  <td>{req.packageType}</td>
-                  <td>{req.note || '-'}</td>
-                  <td>{new Date(req.timestamp).toLocaleString()}</td>
-                  <td>{req.status}</td>
+                <tr
+                  key={index}
+                  className="hover:bg-gray-100 transition-colors"
+                >
+                  <td className="px-4 py-2 border">{req.pickupAddress}</td>
+                  <td className="px-4 py-2 border">{req.dropoffAddress}</td>
+                  <td className="px-4 py-2 border">{req.packageType}</td>
+                  <td className="px-4 py-2 border">{req.note || '-'}</td>
+                  <td className="px-4 py-2 border">
+                    {new Date(req.timestamp).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 border">{req.status}</td>
                 </tr>
               ))}
             </tbody>
