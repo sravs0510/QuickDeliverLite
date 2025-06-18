@@ -38,7 +38,7 @@ export const sendCode = async (req, res) => {
 // Register
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role, code } = req.body;
+    const { name, email, password, mobile,role, code } = req.body;
 
     // Check code
     const storedCode = verificationCodes.get(email);
@@ -52,7 +52,7 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = new User({ name, email, password: hashedPassword, role });
+    const newUser = new User({ name, email, password: hashedPassword, mobile, role });
     await newUser.save();
 
     verificationCodes.delete(email); // clear code after success

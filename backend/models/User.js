@@ -5,6 +5,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String }, // optional if using Google login
   role: { type: String, enum: ["Customer", "Driver"],required:true },
+  mobile: {
+    type: String,
+    required: true,
+  },
   otp: String,
   otpExpiry: Date,
   googleId: { type: String, unique: true, sparse: true },

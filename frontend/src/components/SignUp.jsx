@@ -7,6 +7,7 @@ export default function SignUp() {
     name: "",
     email: "",
     password: "",
+    mobile: "",
     role: "",
     code: ""
   });
@@ -15,7 +16,8 @@ export default function SignUp() {
     name: false,
     email: false,
     password: false,
-    code: false
+    code: false,
+    mobile:false
   });
 
   const [message, setMessage] = useState("");
@@ -39,8 +41,8 @@ export default function SignUp() {
   };
 
   const sendCode = async () => {
-    if (!form.name || !form.email || !form.password) {
-      setMessage("Please fill in name, email, and password first.");
+    if (!form.name || !form.email || !form.password || !form.mobile) {
+      setMessage("Please fill in name, email, mobile and password first.");
       return;
     }
 
@@ -68,9 +70,9 @@ export default function SignUp() {
       setLoading(true);
       const res = await axios.post("http://localhost:5000/api/auth/register", form);
       setMessage(res.data.message);
-      setForm({ name: "", email: "", password: "", role: "", code: "" });
+      setForm({ name: "", email: "", password: "", role: "",mobile:"", code: "" });
       setStep(1);
-      setFocused({ name: false, email: false, password: false, code: false });
+      setFocused({ name: false, email: false, password: false, mobile:false,code: false });
     } catch (err) {
       setMessage(err.response?.data?.message || "Error occurred during registration.");
     }
@@ -114,11 +116,10 @@ export default function SignUp() {
         </h3>
 
         {message && (
-          <div className={`rounded-lg px-4 py-3 mb-4 text-center transition-opacity duration-300 ${
-            message.includes("success") 
-              ? "bg-green-100 text-green-700" 
+          <div className={`rounded-lg px-4 py-3 mb-4 text-center transition-opacity duration-300 ${message.includes("success")
+              ? "bg-green-100 text-green-700"
               : "bg-red-100 text-red-700"
-          }`}>
+            }`}>
             {message}
           </div>
         )}
@@ -138,8 +139,8 @@ export default function SignUp() {
               disabled={step !== 1}
             />
             <label className={`absolute left-4 transition-all duration-300 pointer-events-none
-              ${shouldFloat('name') 
-                ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+              ${shouldFloat('name')
+                ? '-top-2 text-xs bg-white px-1 text-blue-500'
                 : 'top-3 text-gray-500'}`}>
               <i className="bi bi-person-fill mr-2"></i>Full Name
             </label>
@@ -159,8 +160,8 @@ export default function SignUp() {
               disabled={step !== 1}
             />
             <label className={`absolute left-4 transition-all duration-300 pointer-events-none
-              ${shouldFloat('email') 
-                ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+              ${shouldFloat('email')
+                ? '-top-2 text-xs bg-white px-1 text-blue-500'
                 : 'top-3 text-gray-500'}`}>
               <i className="bi bi-envelope-fill mr-2"></i>Email address
             </label>
@@ -180,12 +181,37 @@ export default function SignUp() {
               disabled={step !== 1}
             />
             <label className={`absolute left-4 transition-all duration-300 pointer-events-none
-              ${shouldFloat('password') 
-                ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+              ${shouldFloat('password')
+                ? '-top-2 text-xs bg-white px-1 text-blue-500'
                 : 'top-3 text-gray-500'}`}>
               <i className="bi bi-lock-fill mr-2"></i>Password
             </label>
           </div>
+
+
+          {/* Mobile Number */}
+          <div className="relative mb-4">
+            <input
+              name="mobile"
+              type="text"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none transition-colors"
+              value={form.mobile} // ✅ Fix here
+              onChange={handleChange}
+              onFocus={() => handleFocus('mobile')}
+              onBlur={() => handleBlur('mobile')}
+              required
+              disabled={step !== 1}
+              pattern="\d{10}"
+              title="Enter a 10-digit mobile number"
+            />
+            <label className={`absolute left-4 transition-all duration-300 pointer-events-none
+    ${shouldFloat('mobile')
+                ? '-top-2 text-xs bg-white px-1 text-blue-500'
+                : 'top-3 text-gray-500'}`}>
+              <i className="bi bi-telephone-fill mr-2"></i>Phone Number
+            </label>
+          </div>
+
 
           {/* Step 1: Send Code Button */}
           {step === 1 && (
@@ -224,8 +250,8 @@ export default function SignUp() {
                   required
                 />
                 <label className={`absolute left-4 transition-all duration-300 pointer-events-none
-                  ${shouldFloat('code') 
-                    ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+                  ${shouldFloat('code')
+                    ? '-top-2 text-xs bg-white px-1 text-blue-500'
                     : 'top-3 text-gray-500'}`}>
                   <i className="bi bi-shield-lock mr-2"></i>Verification Code
                 </label>
@@ -245,8 +271,8 @@ export default function SignUp() {
                   <option value="Driver">Driver</option>
                 </select>
                 <label className={`absolute left-4 transition-all duration-300 pointer-events-none
-                  ${form.role 
-                    ? '-top-2 text-xs bg-white px-1 text-blue-500' 
+                  ${form.role
+                    ? '-top-2 text-xs bg-white px-1 text-blue-500'
                     : 'top-3 text-gray-500'}`}>
                   <i className="bi bi-person-badge-fill mr-2"></i>Role
                 </label>
