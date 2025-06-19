@@ -22,14 +22,29 @@ const GoogleSuccess = () => {
         localStorage.setItem("userEmail", email);
         localStorage.setItem("userRole", role);
 
-        navigate("/dashboard");
+        if(role==='Customer')
+        {
+          navigate("/dashboard");
+        }
+        else
+        {
+          navigate("/driver-dashboard");
+        }
       } catch (err) {
         console.error("Failed to decode token:", err);
         alert("Login failed");
         navigate("/signin");
       }
     } else {
-      navigate("/dashboard");
+      
+      if(role==='Customer')
+        {
+          navigate("/dashboard");
+        }
+        else
+        {
+          navigate("/driver-dashboard");
+        }
     }
   }, [navigate]);
 

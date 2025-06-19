@@ -11,6 +11,9 @@ const deliveryRequestSchema = new mongoose.Schema({
   status: { type: String, default: "pending" },
   email: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
+  driverName: { type: String },
+  driverPhone: { type: String },
+  driverEmail: { type: String }
 });
 
 export default mongoose.model("DeliveryRequest", deliveryRequestSchema);
