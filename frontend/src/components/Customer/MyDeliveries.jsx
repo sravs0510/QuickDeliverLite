@@ -36,8 +36,10 @@ const MyDeliveries = () => {
     switch (status) {
       case 'pending':
         return <Clock className="h-5 w-5 text-yellow-600" />;
-      case 'in-transit':
+      case 'accepted':
         return <Truck className="h-5 w-5 text-blue-600" />;
+      case 'in_transit':
+        return <Truck className="h-5 w-5 text-indigo-600" />; // New color
       case 'delivered':
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'cancelled':
@@ -51,8 +53,10 @@ const MyDeliveries = () => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'in-transit':
+      case 'accepted':
         return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'in_transit':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200'; // New
       case 'delivered':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'cancelled':
@@ -61,6 +65,7 @@ const MyDeliveries = () => {
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+
   const handleCancel = async (id) => {
     if (!window.confirm('Are you sure you want to cancel this delivery?')) return;
 
@@ -153,16 +158,20 @@ const MyDeliveries = () => {
                 </div>
               </div>
 
-              {delivery.status === 'in-transit' && (
+              {delivery.status === 'accepted' && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800 font-medium">Estimated Delivery: {delivery.estimatedDelivery || 'N/A'}</p>
-                  <p className="text-blue-600 text-sm">Your package is on the way!</p>
+                  <p className="text-blue-600 text-sm">Your package is accepted</p>
+                </div>
+              )}
+              {delivery.status === 'in_transit' && (
+                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                  <p className="text-indigo-800 font-medium">On the way</p>
+                  <p className="text-indigo-600 text-sm">Your package is currently in transit.</p>
                 </div>
               )}
 
               {delivery.status === 'delivered' && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800 font-medium">Delivered at: {delivery.deliveredAt || 'N/A'}</p>
                   <p className="text-green-600 text-sm">Package delivered successfully!</p>
                 </div>
               )}

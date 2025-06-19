@@ -1,14 +1,32 @@
-import React from 'react';
-import { MapPin, Clock, Phone, Package, AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import {
+  MapPin, Clock, Phone, Package, AlertCircle, CheckCircle
+} from 'lucide-react';
 
-const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
+const PendingDeliveries = ({ onAcceptDelivery }) => {
+  const [deliveries, setDeliveries] = useState([]);
+
+  useEffect(() => {
+    const fetchDeliveries = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/delivery/pending');
+        setDeliveries(res.data);
+      } catch (err) {
+        console.error('Error fetching pending deliveries:', err);
+      }
+    };
+
+    fetchDeliveries();
+  }, []);
+
   const getPriorityColor = (priority) => {
     switch (priority.toLowerCase()) {
-      case 'high':
+      case 'urgent':
         return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
+      case 'express':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
+      case 'standard':
         return 'bg-green-100 text-green-800 border-green-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -17,11 +35,11 @@ const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
 
   const getPriorityIcon = (priority) => {
     switch (priority.toLowerCase()) {
-      case 'high':
+      case 'urgent':
         return <AlertCircle className="h-4 w-4" />;
-      case 'medium':
+      case 'express':
         return <Clock className="h-4 w-4" />;
-      case 'low':
+      case 'standard':
         return <CheckCircle className="h-4 w-4" />;
       default:
         return <Clock className="h-4 w-4" />;
@@ -37,7 +55,21 @@ const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
       </div>
     );
   }
-
+  const handleAcceptDelivery = async (deliveryId) => {
+    const driverEmail = localStorage.getItem("userEmail");
+    try {
+      await axios.put(`http://localhost:5000/api/delivery/accept/${deliveryId}`, {
+        driverEmail,
+      });
+  
+      // Remove accepted delivery from list
+      setDeliveries(prev => prev.filter(d => d._id !== deliveryId));
+    } catch (err) {
+      console.error("Accept delivery error:", err);
+      alert("Failed to accept delivery.");
+    }
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -48,7 +80,7 @@ const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
       <div className="grid gap-6">
         {deliveries.map((delivery) => (
           <div
-            key={delivery.id}
+            key={delivery._id}
             className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
           >
             <div className="p-6">
@@ -59,10 +91,10 @@ const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
                     <Package className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{delivery.customerName}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{delivery.name}</h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Phone className="h-4 w-4" />
-                      <span>{delivery.customerPhone}</span>
+                      <span>{delivery.mobile || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
@@ -85,27 +117,27 @@ const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
                   <div className="flex items-start space-x-3">
                     <MapPin className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Delivery Location</p>
-                      <p className="text-sm text-gray-600">{delivery.deliveryAddress}</p>
+                      <p className="text-sm font-medium text-gray-900">Dropoff Location</p>
+                      <p className="text-sm text-gray-600">{delivery.dropoffAddress}</p>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Package Type</span>
-                    <span className="text-sm text-gray-600">{delivery.packageType}</span>
+                    <span className="text-sm font-medium text-gray-900">Package Description</span>
+                    <span className="text-sm text-gray-600">{delivery.packageNote}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Estimated Time</span>
-                    <span className="text-sm text-gray-600">{delivery.estimatedTime}</span>
+                    <span className="text-sm font-medium text-gray-900">Date</span>
+                    <span className="text-sm text-gray-600">{delivery.deliveryDate}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Distance</span>
-                    <span className="text-sm text-gray-600">{delivery.distance}</span>
+                    <span className="text-sm font-medium text-gray-900">Time</span>
+                    <span className="text-sm text-gray-600">{delivery.deliveryTime}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Order Value</span>
-                    <span className="text-sm font-semibold text-green-600">{delivery.orderValue}</span>
+                    <span className="text-sm font-medium text-gray-900">Size</span>
+                    <span className="text-sm text-gray-600">{delivery.packageSize}</span>
                   </div>
                 </div>
               </div>
@@ -113,7 +145,7 @@ const PendingDeliveries = ({ deliveries, onAcceptDelivery }) => {
               {/* Action Button */}
               <div className="flex justify-end">
                 <button
-                  onClick={() => onAcceptDelivery(delivery.id)}
+                  onClick={() => handleAcceptDelivery(delivery._id)}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   Accept Delivery
