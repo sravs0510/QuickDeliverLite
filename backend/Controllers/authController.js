@@ -38,14 +38,20 @@ export const sendCode = async (req, res) => {
 // Register
 export const register = async (req, res) => {
   try {
+
     const { name, email, password, mobile,role, code } = req.body;
+
+    
 
     // Check code
     const storedCode = verificationCodes.get(email);
     if (!storedCode || storedCode !== code) {
       return res.status(400).json({ message: "Invalid or expired verification code." });
     }
-
+    if (!mobile) {
+      return res.status(400).json({ message: "Mobile number is required." });
+    }
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists." });
 
