@@ -1,23 +1,51 @@
-import React, { useState } from 'react';
-import { MapPin, Package, Phone, FileText, Calendar, Clock, DollarSign } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { MapPin, Package, FileText, Calendar, Clock, DollarSign } from 'lucide-react';
 
 const DeliverRequestForm = () => {
   const [formData, setFormData] = useState({
     pickupAddress: '',
     dropoffAddress: '',
     packageNote: '',
-    mobileNumber: '',
     deliveryDate: '',
     deliveryTime: 'anytime',
     packageSize: 'small',
-    priority: 'standard'
+    priority: 'standard',
+    email: ''
   });
 
-  const handleSubmit = (e) => {
+  // Auto-fill email from localStorage
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+      setFormData(prev => ({ ...prev, email: userEmail }));
+    }
+  }, []);
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Delivery request:', formData);
-    // Handle form submission
-    alert('Delivery request submitted successfully!');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/delivery', formData); // Adjust URL as needed
+      console.log('Delivery request:', response.data);
+      alert('Delivery request submitted successfully!');
+      
+      // Optionally reset form
+      setFormData({
+        pickupAddress: '',
+        dropoffAddress: '',
+        packageNote: '',
+        deliveryDate: '',
+        deliveryTime: 'anytime',
+        packageSize: 'small',
+        priority: 'standard',
+        email: ''
+      });
+    } catch (error) {
+      console.error('Error submitting delivery request:', error);
+      alert('Failed to submit delivery request.');
+    }
   };
 
   const handleChange = (e) => {
@@ -80,7 +108,7 @@ const DeliverRequestForm = () => {
             <Package className="h-5 w-5 mr-2 text-blue-600" />
             Package Details
           </h3>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <label className="block">
               <div className="flex items-center space-x-2 mb-2">
@@ -137,59 +165,41 @@ const DeliverRequestForm = () => {
           </div>
         </div>
 
-        {/* Contact & Schedule */}
+        {/* Schedule Section */}
         <div className="grid md:grid-cols-2 gap-6">
           <label className="block">
             <div className="flex items-center space-x-2 mb-2">
-              <Phone className="h-4 w-4 text-green-600" />
-              <span className="font-medium text-gray-900">Mobile Number</span>
+              <Calendar className="h-4 w-4 text-purple-600" />
+              <span className="font-medium text-gray-900">Preferred Date</span>
             </div>
             <input
-              type="tel"
-              name="mobileNumber"
-              value={formData.mobileNumber}
+              type="date"
+              name="deliveryDate"
+              value={formData.deliveryDate}
               onChange={handleChange}
-              placeholder="+1 (555) 123-4567"
+              min={new Date().toISOString().split('T')[0]}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               required
             />
           </label>
 
-          <div className="space-y-4">
-            <label className="block">
-              <div className="flex items-center space-x-2 mb-2">
-                <Calendar className="h-4 w-4 text-purple-600" />
-                <span className="font-medium text-gray-900">Preferred Date</span>
-              </div>
-              <input
-                type="date"
-                name="deliveryDate"
-                value={formData.deliveryDate}
-                onChange={handleChange}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                required
-              />
-            </label>
-
-            <label className="block">
-              <div className="flex items-center space-x-2 mb-2">
-                <Clock className="h-4 w-4 text-orange-600" />
-                <span className="font-medium text-gray-900">Time Preference</span>
-              </div>
-              <select
-                name="deliveryTime"
-                value={formData.deliveryTime}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              >
-                <option value="anytime">Anytime</option>
-                <option value="morning">Morning (8AM - 12PM)</option>
-                <option value="afternoon">Afternoon (12PM - 5PM)</option>
-                <option value="evening">Evening (5PM - 8PM)</option>
-              </select>
-            </label>
-          </div>
+          <label className="block">
+            <div className="flex items-center space-x-2 mb-2">
+              <Clock className="h-4 w-4 text-orange-600" />
+              <span className="font-medium text-gray-900">Time Preference</span>
+            </div>
+            <select
+              name="deliveryTime"
+              value={formData.deliveryTime}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            >
+              <option value="anytime">Anytime</option>
+              <option value="morning">Morning (8AM - 12PM)</option>
+              <option value="afternoon">Afternoon (12PM - 5PM)</option>
+              <option value="evening">Evening (5PM - 8PM)</option>
+            </select>
+          </label>
         </div>
 
         {/* Submit Button */}

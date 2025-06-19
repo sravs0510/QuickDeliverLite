@@ -3,13 +3,12 @@ import mongoose from "mongoose";
 const deliveryRequestSchema = new mongoose.Schema({
   pickupAddress: { type: String, required: true },
   dropoffAddress: { type: String, required: true },
-  note: { type: String },
+  packageNote: { type: String, required: true },
   deliveryDate: { type: String, required: true },
   deliveryTime: { type: String, required: true },
-  weight: { type: String },
-  packageType: { type: String },
-  mobileNumber: { type: String, required: true },
-  status: { type: String, default: "Pending" },
+  packageSize: { type: String, required: true },
+  priority: { type: String, required: true },
+  status: { type: String, default: "pending" },
   email: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
 });

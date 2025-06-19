@@ -50,7 +50,14 @@ export default function SignIn() {
       localStorage.setItem("userEmail", user.email);
 
       alert(`Logged in successfully as ${user.role}`);
-      navigate("/dashboard");
+      if(user.role==='Customer')
+      {      
+        navigate("/dashboard");
+      }
+      else
+      {
+        navigate("/driver-dashboard");
+      }
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Login failed");
@@ -85,7 +92,14 @@ export default function SignIn() {
       localStorage.setItem("userEmail", user.email);
 
       alert(`Logged in via OTP as ${user.role}`);
-      navigate("/dashboard");
+      if(user.role==='Customer')
+        {      
+          navigate("/dashboard");
+        }
+        else
+        {
+          navigate("/driver-dashboard");
+        }
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "OTP verification failed");

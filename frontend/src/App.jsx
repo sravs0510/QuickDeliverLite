@@ -9,6 +9,7 @@ import GoogleFailure from './components/GoogleFailure';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import Home from './components/Home';
+import DriverDashboard from './components/Driver/DriverDashboard';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="/dashboard" element={<CustomerDashboard />} />
+        <Route path="/driver-dashboard" element={<DriverDashboard />} />
         <Route path="/google-success" element={<GoogleSuccess />} />
         <Route path="/google-failure" element={<GoogleFailure />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
