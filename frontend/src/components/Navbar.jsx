@@ -1,10 +1,19 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('userRole');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // List of routes where Navbar should be shown
+  const visibleRoutes = ['/', '/signup', '/login'];
+
+  // If current path is not in the list, hide Navbar
+  if (!visibleRoutes.includes(location.pathname)) {
+    return null;
+  }
 
   const handleLogout = () => {
     localStorage.clear();
@@ -19,7 +28,6 @@ const Navbar = () => {
           QuickDeliver <span className="text-cyan-500">Lite</span>
         </Link>
 
-        
         {/* Navigation Links */}
         <div className="w-full md:w-auto mt-3 md:mt-0 flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4">
           <Link to="/" className="text-gray-700 hover:text-blue-600">

@@ -1,143 +1,55 @@
 import DeliveryRequest from "../models/DeliveryRequest.js";
 import User from "../models/User.js";
-
+import { sendDeliveryEmail } from '../utils/sendEmail.js'; // ✅ Email utility
 
 // ✅ Create a new delivery request
 export const createDeliveryRequest = async (req, res) => {
   try {
-    const {
-      pickupAddress,
-      dropoffAddress,
-      packageNote,
-      deliveryDate,
-      deliveryTime,
-      packageSize,
-      priority,
-      email,
-    } = req.body;
-
-    // Validate required fields (for safety, though schema also enforces it)
-    if (
-      !pickupAddress ||
-      !dropoffAddress ||
-      !packageNote ||
-      !deliveryDate ||
-      !deliveryTime ||
-      !packageSize ||
-      !priority ||
-      !email
-    ) {
-      return res.status(400).json({ message: "All required fields must be filled." });
-    }
-
-    const newRequest = new DeliveryRequest({
-      pickupAddress,
-      dropoffAddress,
-      packageNote,
-      deliveryDate,
-      deliveryTime,
-      packageSize,
-      priority,
-      email,
+    const newDelivery = new DeliveryRequest({
+      ...req.body,
+      trackingId: "TRK" + Date.now().toString(36).toUpperCase(),
+      status: "pending",
+      timeline: [
+        {
+          status: "Pending",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          date: new Date().toDateString(),
+          location: req.body.pickupAddress,
+          current: true,
+          completed: false,
+        }
+      ],
+      currentLocation: req.body.pickupAddress,
     });
 
-    const savedRequest = await newRequest.save();
-    res.status(201).json(savedRequest);
+    await newDelivery.save();
+
+    // ✅ Send confirmation email
+    const emailBody = `
+      <h2>Delivery Scheduled Successfully</h2>
+      <p>Thank you for using QuickDeliver!</p>
+      <p><strong>Tracking ID:</strong> ${newDelivery.trackingId}</p>
+      <p><strong>Pickup:</strong> ${newDelivery.pickupAddress}</p>
+      <p><strong>Dropoff:</strong> ${newDelivery.dropoffAddress}</p>
+      <p><strong>Date:</strong> ${newDelivery.deliveryDate}</p>
+      <p><strong>Time:</strong> ${newDelivery.deliveryTime}</p>
+      <p><strong>Package:</strong> ${newDelivery.packageNote}</p>
+      <p><strong>Priority:</strong> ${newDelivery.priority}</p>
+    `;
+
+    await sendDeliveryEmail(newDelivery.email, "Your QuickDeliver Tracking Info", emailBody);
+
+    res.status(201).json(newDelivery);
   } catch (err) {
     console.error("Delivery creation error:", err);
     res.status(500).json({ message: "Failed to create delivery request." });
   }
 };
 
-// ✅ GET all pending deliveries (for drivers/admin)
-
-export const getPendingDeliveries = async (req, res) => {
-  try {
-    const requests = await DeliveryRequest.aggregate([
-      {
-        $match: { status: "pending" }
-      },
-      {
-        $sort: { timestamp: -1 }
-      },
-      {
-        $lookup: {
-          from: "users",             // 🔁 collection name in MongoDB
-          localField: "email",       // 🔗 field in DeliveryRequest
-          foreignField: "email",     // 🔗 field in User
-          as: "userInfo"             // 🧾 result field (array)
-        }
-      },
-      {
-        $unwind: {
-          path: "$userInfo",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $project: {
-          pickupAddress: 1,
-          dropoffAddress: 1,
-          packageNote: 1,
-          deliveryDate: 1,
-          deliveryTime: 1,
-          packageSize: 1,
-          priority: 1,
-          status: 1,
-          email: 1,
-          timestamp: 1,
-          name: "$userInfo.name",         // ⬅️ added from User
-          mobile: "$userInfo.mobile"      // ⬅️ added from User
-        }
-      }
-    ]);
-
-    res.status(200).json(requests);
-  } catch (err) {
-    console.error("Fetch error:", err);
-    res.status(500).json({ message: "Failed to fetch deliveries." });
-  }
-};
-
-
-// ✅ GET deliveries for a specific customer
-export const getCustomerDeliveries = async (req, res) => {
-  const { email } = req.params;
-
-  try {
-    const requests = await DeliveryRequest.find({ email }).sort({ timestamp: -1 });
-    res.status(200).json(requests);
-  } catch (err) {
-    console.error("Customer delivery fetch error:", err);
-    res.status(500).json({ message: "Failed to fetch customer's deliveries." });
-  }
-};
-
-export const cancelDelivery = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const updatedDelivery = await DeliveryRequest.findByIdAndUpdate(
-      id,
-      { status: 'cancelled' },
-      { new: true }
-    );
-
-    if (!updatedDelivery) {
-      return res.status(404).json({ message: 'Delivery not found' });
-    }
-
-    res.status(200).json({ message: 'Delivery cancelled', delivery: updatedDelivery });
-  } catch (error) {
-    console.error('Cancel error:', error);
-    res.status(500).json({ message: 'Failed to cancel delivery' });
-  }
-};
-
-
+// ✅ Accept a delivery
 export const acceptDelivery = async (req, res) => {
   const { id } = req.params;
-  const driverEmail = req.body.driverEmail;
+  const { driverEmail } = req.body;
 
   try {
     const driver = await User.findOne({ email: driverEmail, role: "Driver" });
@@ -149,9 +61,11 @@ export const acceptDelivery = async (req, res) => {
       id,
       {
         status: "accepted",
-        driverName: driver.name,
-        driverPhone: driver.mobile,
-        driverEmail: driver.email,
+        driver: {
+          name: driver.name,
+          phone: driver.mobile,
+          email: driver.email,
+        },
       },
       { new: true }
     );
@@ -166,35 +80,104 @@ export const acceptDelivery = async (req, res) => {
     res.status(500).json({ message: "Failed to accept delivery." });
   }
 };
-// backend/routes/driverRoutes.js (or similar)
 
+// ✅ Get all pending deliveries
+export const getPendingDeliveries = async (req, res) => {
+  try {
+    const requests = await DeliveryRequest.aggregate([
+      { $match: { status: "pending" } },
+      { $sort: { timestamp: -1 } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "email",
+          foreignField: "email",
+          as: "userInfo",
+        },
+      },
+      { $unwind: { path: "$userInfo", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          pickupAddress: 1,
+          dropoffAddress: 1,
+          packageNote: 1,
+          deliveryDate: 1,
+          deliveryTime: 1,
+          packageSize: 1,
+          priority: 1,
+          status: 1,
+          email: 1,
+          timestamp: 1,
+          trackingId: 1,
+          name: "$userInfo.name",
+          mobile: "$userInfo.mobile",
+        },
+      },
+    ]);
 
+    res.status(200).json(requests);
+  } catch (err) {
+    console.error("Fetch error:", err);
+    res.status(500).json({ message: "Failed to fetch deliveries." });
+  }
+};
+
+// ✅ Get deliveries for a specific customer
+export const getCustomerDeliveries = async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const requests = await DeliveryRequest.find({ email }).sort({ timestamp: -1 });
+    res.status(200).json(requests);
+  } catch (err) {
+    console.error("Customer delivery fetch error:", err);
+    res.status(500).json({ message: "Failed to fetch customer's deliveries." });
+  }
+};
+
+// ✅ Cancel a delivery
+export const cancelDelivery = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedDelivery = await DeliveryRequest.findByIdAndUpdate(
+      id,
+      { status: "cancelled" },
+      { new: true }
+    );
+
+    if (!updatedDelivery) {
+      return res.status(404).json({ message: "Delivery not found" });
+    }
+
+    res.status(200).json({ message: "Delivery cancelled", delivery: updatedDelivery });
+  } catch (error) {
+    console.error("Cancel error:", error);
+    res.status(500).json({ message: "Failed to cancel delivery" });
+  }
+};
+
+// ✅ Get accepted deliveries for a driver
 export const accepted = async (req, res) => {
   const { email } = req.query;
 
   try {
-    // 1. Get all accepted/in_transit/delivered deliveries for the driver
     const deliveries = await DeliveryRequest.find({
-      driverEmail: email,
-      status: { $in: ["accepted", "in_transit", "delivered"] }
+      "driver.email": email,
+      status: { $in: ["accepted", "in_transit", "delivered"] },
     });
 
-    // 2. Get unique customer emails
-    const customerEmails = [...new Set(deliveries.map(d => d.email))];
-
-    // 3. Fetch user details (mobile numbers) for those emails
+    const customerEmails = [...new Set(deliveries.map((d) => d.email))];
     const users = await User.find({ email: { $in: customerEmails } });
 
-    // 4. Map user emails to mobiles
     const emailToMobileMap = {};
-    users.forEach(user => {
+    users.forEach((user) => {
       emailToMobileMap[user.email] = user.mobile;
     });
 
-    // 5. Attach customerMobile to each delivery
-    const enrichedDeliveries = deliveries.map(delivery => ({
+    const enrichedDeliveries = deliveries.map((delivery) => ({
       ...delivery.toObject(),
-      customerMobile: emailToMobileMap[delivery.email] || "N/A"
+      customerMobile: emailToMobileMap[delivery.email] || "N/A",
     }));
 
     res.json(enrichedDeliveries);
@@ -204,24 +187,57 @@ export const accepted = async (req, res) => {
   }
 };
 
-
+// ✅ Update status of a delivery
 export const updateDeliveryStatus = async (req, res) => {
   const { id } = req.params;
-  const { newStatus } = req.body;
+  const { newStatus, location } = req.body;
 
   try {
-    const updated = await DeliveryRequest.findByIdAndUpdate(
-      id,
-      { status: newStatus },
-      { new: true }
-    );
-
-    if (!updated) {
+    const delivery = await DeliveryRequest.findById(id);
+    if (!delivery) {
       return res.status(404).json({ message: "Delivery not found" });
     }
 
-    res.json(updated);
+    delivery.timeline = delivery.timeline.map((event) => ({
+      ...event,
+      current: false,
+      completed: true,
+    }));
+
+    const now = new Date();
+    const newTimelineEntry = {
+      status: newStatus.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      date: now.toDateString(),
+      location: location || delivery.currentLocation || 'Unknown',
+      completed: false,
+      current: true,
+    };
+
+    delivery.timeline.push(newTimelineEntry);
+    delivery.status = newStatus;
+    delivery.currentLocation = location || delivery.currentLocation;
+
+    await delivery.save();
+    res.status(200).json({ message: "Status updated", delivery });
   } catch (err) {
-    res.status(500).json({ message: "Error updating delivery status" });
+    res.status(500).json({ message: "Error updating delivery status", error: err.message });
+  }
+};
+
+// ✅ Track delivery by tracking ID
+export const trackDeliveryById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const delivery = await DeliveryRequest.findOne({ trackingId: id });
+
+    if (!delivery) {
+      return res.status(404).json({ message: "Delivery not found" });
+    }
+
+    res.status(200).json(delivery);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
