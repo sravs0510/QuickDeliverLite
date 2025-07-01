@@ -8,6 +8,7 @@ import {
   accepted,
   updateDeliveryStatus,
   trackDeliveryById,
+  counts
 } from "../Controllers/deliveryController.js";
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.put("/accept/:id", acceptDelivery);
 router.get("/accepted", accepted);
 router.put("/status/:id", updateDeliveryStatus);
 router.get("/track/:id", trackDeliveryById);
+router.get("/counts",counts);
 
 export default router;

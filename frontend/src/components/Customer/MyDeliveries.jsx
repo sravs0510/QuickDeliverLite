@@ -150,8 +150,8 @@ const MyDeliveries = () => {
                       <Phone className="h-5 w-5 text-blue-600 mt-0.5" />
                       <div>
                         <p className="font-medium text-gray-900">Driver</p>
-                        <p className="text-gray-600 text-sm">{delivery.driverName}</p>
-                        <p className="text-gray-500 text-xs">{delivery.driverPhone}</p>
+                        <p className="text-gray-600 text-sm">{delivery.driver.name}</p>
+                        <p className="text-gray-500 text-xs">{delivery.driver.phone}</p>
                       </div>
                     </div>
                   )}

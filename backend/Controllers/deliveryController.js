@@ -241,3 +241,23 @@ export const trackDeliveryById = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+// In routes/delivery.js
+export const counts = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    const pendingCount = await DeliveryRequest.countDocuments({
+      status: 'pending'
+    });
+
+    const acceptedCount = await DeliveryRequest.countDocuments({
+      'driver.email': email,
+      status: { $in: ['accepted', 'in_transit', 'delivered'] }
+    });
+
+    res.json({ pending: pendingCount, accepted: acceptedCount });
+  } catch (error) {
+    console.error('Error in counts controller:', error);
+    res.status(500).json({ error: 'Failed to fetch counts' });
+  }
+};

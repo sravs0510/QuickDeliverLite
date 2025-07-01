@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, MessageSquare, Send, CheckCircle, User, Calendar } from 'lucide-react';
+import axios from 'axios';
 
 const Feedback = () => {
   const [selectedDelivery, setSelectedDelivery] = useState('');
@@ -7,12 +8,8 @@ const Feedback = () => {
   const [feedback, setFeedback] = useState('');
   const [category, setCategory] = useState('general');
   const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const recentDeliveries = [
-    { id: 'DEL001', date: '2024-01-15', package: 'Electronics - Laptop' },
-    { id: 'DEL002', date: '2024-01-14', package: 'Documents - Legal Papers' },
-    { id: 'DEL003', date: '2024-01-12', package: 'Gift Box - Birthday Present' }
-  ];
+  const [recentDeliveries, setRecentDeliveries] = useState([]);
+  const [previousFeedback, setPreviousFeedback] = useState([]);
 
   const feedbackCategories = [
     { id: 'general', label: 'General Experience' },
@@ -23,37 +20,51 @@ const Feedback = () => {
     { id: 'app', label: 'App Experience' }
   ];
 
-  const previousFeedback = [
-    {
-      id: 1,
-      deliveryId: 'DEL001',
-      rating: 5,
-      comment: 'Excellent service! Driver was very professional and package arrived on time.',
-      date: '2024-01-15',
-      category: 'driver'
-    },
-    {
-      id: 2,
-      deliveryId: 'DEL002',
-      rating: 4,
-      comment: 'Good service overall. Could improve communication about delivery time.',
-      date: '2024-01-14',
-      category: 'communication'
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const userEmail = localStorage.getItem('userEmail'); // or wherever you store it
 
-  const handleSubmit = (e) => {
+      const deliveryRes = await axios.get('http://localhost:5000/api/feedback/deliveries', {
+        params: { email: userEmail }
+      });
+
+      const feedbackRes = await axios.get('http://localhost:5000/api/feedback/all');
+      console.log('Delivery response:', deliveryRes.data);
+
+      const deliveries = deliveryRes.data
+        .filter((d) => !d.feedbackGiven && d.status.toLowerCase() === 'delivered')
+        .map((d) => ({
+          id: d.trackingId,
+          date: d.deliveryDate,
+          package: `${d.packageNote || 'No Description'} (${d.pickupAddress} → ${d.dropoffAddress})`
+        }));
+
+      const feedbacks = feedbackRes.data.map((item) => ({
+        deliveryId: item.trackingId,
+        rating: item.feedback.rating,
+        comment: item.feedback.comment,
+        category: item.feedback.category,
+        date: new Date(item.feedback.date).toLocaleDateString()
+      }));
+
+      setRecentDeliveries(deliveries);
+      setPreviousFeedback(feedbacks);
+    };
+
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle feedback submission
-    console.log({
+    await axios.post('http://localhost:5000/api/feedback', {
       deliveryId: selectedDelivery,
       rating,
-      feedback,
-      category
+      comment: feedback,
+      category,
     });
     setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
+
     setTimeout(() => {
       setIsSubmitted(false);
       setSelectedDelivery('');
@@ -63,27 +74,21 @@ const Feedback = () => {
     }, 3000);
   };
 
-  const StarRating = ({ rating, onRatingChange, readonly = false }) => {
-    return (
-      <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            disabled={readonly}
-            onClick={() => !readonly && onRatingChange(star)}
-            className={`${
-              star <= rating
-                ? 'text-yellow-400'
-                : 'text-gray-300'
-            } ${!readonly ? 'hover:text-yellow-300 cursor-pointer' : 'cursor-default'} transition-colors duration-200`}
-          >
-            <Star className="h-6 w-6 fill-current" />
-          </button>
-        ))}
-      </div>
-    );
-  };
+  const StarRating = ({ rating, onRatingChange, readonly = false }) => (
+    <div className="flex space-x-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          disabled={readonly}
+          onClick={() => !readonly && onRatingChange(star)}
+          className={`${star <= rating ? 'text-yellow-400' : 'text-gray-300'} ${!readonly ? 'hover:text-yellow-300 cursor-pointer' : 'cursor-default'} transition-colors duration-200`}
+        >
+          <Star className="h-6 w-6 fill-current" />
+        </button>
+      ))}
+    </div>
+  );
 
   if (isSubmitted) {
     return (
@@ -114,12 +119,10 @@ const Feedback = () => {
         {/* Feedback Form */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-6">Submit New Feedback</h3>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Select Delivery
-              </label>
+              <label className="block text-sm font-medium text-gray-900 mb-2">Select Delivery</label>
               <select
                 value={selectedDelivery}
                 onChange={(e) => setSelectedDelivery(e.target.value)}
@@ -136,9 +139,7 @@ const Feedback = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Feedback Category
-              </label>
+              <label className="block text-sm font-medium text-gray-900 mb-2">Feedback Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -153,9 +154,7 @@ const Feedback = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Overall Rating
-              </label>
+              <label className="block text-sm font-medium text-gray-900 mb-2">Overall Rating</label>
               <StarRating rating={rating} onRatingChange={setRating} />
               <p className="text-sm text-gray-500 mt-1">
                 {rating === 0 && "Please select a rating"}
@@ -168,9 +167,7 @@ const Feedback = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Your Comments
-              </label>
+              <label className="block text-sm font-medium text-gray-900 mb-2">Your Comments</label>
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
@@ -183,7 +180,7 @@ const Feedback = () => {
 
             <button
               type="submit"
-              disabled={!selectedDelivery || rating === 0 || !feedback.trim()}
+              disabled={!selectedDelivery || rating === 0 || !feedback.trim() || recentDeliveries.length === 0}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
             >
               <Send className="h-5 w-5" />
@@ -195,10 +192,10 @@ const Feedback = () => {
         {/* Previous Feedback */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-6">Your Previous Feedback</h3>
-          
+
           <div className="space-y-4">
-            {previousFeedback.map((item) => (
-              <div key={item.id} className="bg-gray-50 rounded-lg p-4">
+            {previousFeedback.map((item, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-2">
                     <User className="h-4 w-4 text-gray-600" />
@@ -209,13 +206,13 @@ const Feedback = () => {
                     <span>{item.date}</span>
                   </div>
                 </div>
-                
+
                 <div className="mb-3">
                   <StarRating rating={item.rating} readonly={true} />
                 </div>
-                
+
                 <p className="text-gray-700 text-sm mb-2">{item.comment}</p>
-                
+
                 <div className="flex items-center space-x-2">
                   <MessageSquare className="h-4 w-4 text-blue-600" />
                   <span className="text-xs text-blue-600 font-medium">
@@ -224,7 +221,7 @@ const Feedback = () => {
                 </div>
               </div>
             ))}
-            
+
             {previousFeedback.length === 0 && (
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />

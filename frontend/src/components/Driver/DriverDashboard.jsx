@@ -1,63 +1,52 @@
-import React, { useState } from 'react';
-import { Truck, MapPin, Clock, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Truck, Clock, User } from 'lucide-react';
 import PendingDeliveries from './PendingDeliveries';
 import AcceptedDeliveries from './AcceptedDeliveries';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const DriverDashboard = () => {
   const [activeTab, setActiveTab] = useState('pending');
-  const [pendingDeliveries, setPendingDeliveries] = useState([
-    {
-      id: 1,
-      customerName: 'Sarah Johnson',
-      customerPhone: '+1 (555) 123-4567',
-      pickupAddress: '123 Main St, Downtown',
-      deliveryAddress: '456 Oak Ave, Westside',
-      packageType: 'Electronics',
-      estimatedTime: '30 mins',
-      priority: 'High',
-      orderValue: '$299.99',
-      distance: '2.5 km'
-    },
-    {
-      id: 2,
-      customerName: 'Mike Chen',
-      customerPhone: '+1 (555) 987-6543',
-      pickupAddress: '789 Pine Rd, Central',
-      deliveryAddress: '321 Elm St, Eastside',
-      packageType: 'Food',
-      estimatedTime: '15 mins',
-      priority: 'Medium',
-      orderValue: '$45.50',
-      distance: '1.8 km'
-    },
-    {
-      id: 3,
-      customerName: 'Emma Davis',
-      customerPhone: '+1 (555) 456-7890',
-      pickupAddress: '555 Maple Ave, North',
-      deliveryAddress: '777 Cedar Ln, South',
-      packageType: 'Clothing',
-      estimatedTime: '45 mins',
-      priority: 'Low',
-      orderValue: '$129.99',
-      distance: '4.2 km'
-    }
-  ]);
+  const [pendingDeliveries, setPendingDeliveries] = useState([]);
+  const [acceptedDeliveries, setAcceptedDeliveries] = useState([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [acceptedCount, setAcceptedCount] = useState(0);
+  const [userName, setUserName] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
 
-  const [acceptedDeliveries, setAcceptedDeliveries] = useState([
-    {
-      id: 4,
-      customerName: 'John Smith',
-      customerPhone: '+1 (555) 234-5678',
-      pickupAddress: '999 Broadway, Center',
-      deliveryAddress: '111 Park Ave, North',
-      packageType: 'Documents',
-      status: 'picked_up',
-      orderValue: '$15.00',
-      distance: '3.1 km',
-      acceptedAt: '2:30 PM'
-    }
-  ]);
+  const userEmail = localStorage.getItem('userEmail');
+
+  // Fetch user name
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/user/getUserByEmail', {
+          params: { email: userEmail }
+        });
+        setUserName(res.data.name);
+      } catch (err) {
+        console.error('Error fetching user name:', err);
+      }
+    };
+    fetchUserName();
+  }, [userEmail]);
+
+  // Fetch delivery counts
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/delivery/counts', {
+          params: { email: userEmail }
+        });
+        setPendingCount(res.data.pending);
+        setAcceptedCount(res.data.accepted);
+      } catch (err) {
+        console.error('Error fetching counts', err);
+      }
+    };
+    fetchCounts();
+  }, [userEmail]);
 
   const handleAcceptDelivery = (deliveryId) => {
     const delivery = pendingDeliveries.find(d => d.id === deliveryId);
@@ -97,14 +86,39 @@ const DriverDashboard = () => {
                 <p className="text-sm text-gray-600">Driver Dashboard</p>
               </div>
             </div>
+
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium text-green-800">Online</span>
-              </div>
+              
               <div className="flex items-center space-x-2 text-gray-700">
                 <User className="h-5 w-5" />
-                <span className="font-medium">Driver #12345</span>
+                <div className="relative">
+                  <div
+                    onClick={() => setShowDropdown(prev => !prev)}
+                    className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-full bg-indigo-500 text-white font-semibold text-lg shadow-md"
+                  >
+                    {userName?.charAt(0).toUpperCase()}
+                  </div>
+
+                  {showDropdown && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                      <button
+                        onClick={() => navigate("/view-profile")}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        View Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          localStorage.clear();
+                          window.location.href = '/';
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -113,49 +127,31 @@ const DriverDashboard = () => {
 
       {/* Stats Bar */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex justify-center gap-8">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white w-64">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-100 text-sm">Pending Deliveries</p>
-                  <p className="text-2xl font-bold">{pendingDeliveries.length}</p>
+                  <p className="text-2xl font-bold">{pendingCount}</p>
                 </div>
                 <Clock className="h-8 w-8 text-blue-200" />
               </div>
             </div>
-            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white w-64">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-100 text-sm">Accepted Deliveries</p>
-                  <p className="text-2xl font-bold">{acceptedDeliveries.length}</p>
+                  <p className="text-2xl font-bold">{acceptedCount}</p>
                 </div>
                 <Truck className="h-8 w-8 text-green-200" />
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-lg text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-100 text-sm">Today's Earnings</p>
-                  <p className="text-2xl font-bold">$125.50</p>
-                </div>
-                <div className="text-2xl">💰</div>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-lg text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-orange-100 text-sm">Total Distance</p>
-                  <p className="text-2xl font-bold">15.2 km</p>
-                </div>
-                <MapPin className="h-8 w-8 text-orange-200" />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
+      {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="border-b border-gray-200">
@@ -168,17 +164,17 @@ const DriverDashboard = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Pending Deliveries ({pendingDeliveries.length})
+                Pending Deliveries ({pendingCount})
               </button>
               <button
                 onClick={() => setActiveTab('accepted')}
                 className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 ${
                   activeTab === 'accepted'
-                    ? 'border-blue-500 text-blue-600 bg-blue-50'
+                    ? 'border-green-500 text-green-600 bg-green-50'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Accepted Deliveries ({acceptedDeliveries.length})
+                Accepted Deliveries ({acceptedCount})
               </button>
             </nav>
           </div>
