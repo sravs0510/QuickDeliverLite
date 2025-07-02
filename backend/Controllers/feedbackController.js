@@ -89,3 +89,40 @@ export const getDriverFeedback = async (req, res) => {
     res.status(500).json({ error: 'Error fetching driver feedback' });
   }
 };
+
+
+
+// GET /api/feedback/recent-feedbacks
+
+export const getRecentFeedbacks = async (req, res) => {
+  try {
+    // Find deliveries with feedback, sorted by feedback date
+    const deliveries = await DeliveryRequest.find({
+      "feedback": { $exists: true, $ne: null }
+    })
+    .sort({ "feedback.date": -1 })
+    .limit(3)
+    .lean();
+
+    // Get user emails from deliveries
+    const emails = deliveries.map(d => d.email);
+    const users = await User.find({ email: { $in: emails } }, 'name role email');
+    
+    // Map users to deliveries
+    const feedbacks = deliveries.map(delivery => {
+      const user = users.find(u => u.email === delivery.email);
+      return {
+        rating: delivery.feedback.rating,
+        comment: delivery.feedback.comment,
+        date: delivery.feedback.date,
+        customerName: user ? user.name : 'Customer',
+        customerRole: user ? user.role : 'Customer'
+      };
+    });
+    
+    res.json(feedbacks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching recent feedbacks' });
+  }
+};

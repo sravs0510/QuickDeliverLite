@@ -1,12 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
-import { FaTruck, FaClock, FaShieldAlt, FaMoneyBillWave, FaStar, FaArrowRight, FaGooglePlay, FaApple } from 'react-icons/fa';
-import Footer from './Footer.jsx'
+import { FaTruck, FaClock, FaShieldAlt, FaMoneyBillWave, FaStar, FaArrowRight } from 'react-icons/fa';
+import Footer from './Footer.jsx';
+
 const Home = () => {
   const [activeTab, setActiveTab] = useState('customer');
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  const fetchTestimonials = async () => {
+    try {
+      // Use absolute URL for debugging
+      const url = 'http://localhost:5000/api/feedback/recent-feedbacks';
+      console.log('Fetching from:', url);
+      
+      const response = await fetch(url);
+      
+      // Check what type of response we got
+      const contentType = response.headers.get('content-type');
+      console.log('Content-Type:', contentType);
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text.substring(0, 100));
+        throw new Error('Received HTML instead of JSON');
+      }
+      
+      const data = await response.json();
+      setTestimonials(data);
+    } catch (error) {
+      console.error('Full error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTestimonials();
+}, []);
+
+ 
+  const renderStars = (rating) => {
+    return (
+      <div className="flex">
+        {[...Array(5)].map((_, i) => (
+          <FaStar 
+            key={i} 
+            className={i < rating ? "text-yellow-400" : "text-gray-300"} 
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-
       {/* Hero Section */}
       <section className="py-16 px-4 md:px-12 bg-gradient-to-r from-blue-500 to-indigo-700 text-white">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -15,16 +63,15 @@ const Home = () => {
             <p className="text-xl mb-8 text-blue-100">QuickDeliver Lite connects you with trusted delivery partners for all your shipping needs. Fast, secure, and affordable.</p>
             
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-              
-              <button className="bg-white text-black bg-opacity-20 border border-white px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center hover:bg-opacity-30 transition duration-300">
+              <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center hover:bg-blue-100 transition duration-300">
                 Get Started
               </button>
               <Link 
-  to="/signup"
-  className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center hover:bg-yellow-300 transition duration-300"
->
-  Sign Up <FaArrowRight className="ml-2" />
-</Link>
+                to="/signup"
+                className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center hover:bg-yellow-300 transition duration-300"
+              >
+                Sign Up <FaArrowRight className="ml-2" />
+              </Link>
             </div>
           </div>
           
@@ -214,61 +261,64 @@ const Home = () => {
       </section>
       
       {/* Testimonials */}
-      <section className="py-16 px-4 md:px-12 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <section className="py-16 px-4 md:px-12 bg-gradient-to-r from-blue-400 to-indigo-700 text-white">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Customers Say</h2>
           <p className="text-blue-100 text-lg">Real experiences from people who use QuickDeliver Lite</p>
         </div>
         
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6">
-            <div className="flex mb-4">
-              {[...Array(5)].map((_, i) => (
-                <FaStar key={i} className="text-yellow-400" />
-              ))}
-            </div>
-            <p className="mb-6 italic">"QuickDeliver Lite saved me when I forgot important documents at home. The driver arrived in 20 minutes and delivered to my office before my meeting started!"</p>
-            <div className="flex items-center">
-              <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
-              <div className="ml-4">
-                <p className="font-bold">Sarah Johnson</p>
-                <p className="text-blue-100">Small Business Owner</p>
+        {loading ? (
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((item) => (
+              <div 
+                key={item} 
+                className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6 animate-pulse"
+                style={{
+                  transition: 'all 0.3s ease',
+                  transform: 'translateY(0)'
+                }}
+              >
+                <div className="h-6 bg-gray-300 rounded mb-4 w-4/5 mx-auto"></div>
+                <div className="h-24 bg-gray-300 rounded mb-6"></div>
+                <div className="flex items-center">
+                  <div className="bg-gray-300 rounded-xl w-12 h-12"></div>
+                  <div className="ml-4">
+                    <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded w-16"></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-          
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6">
-            <div className="flex mb-4">
-              {[...Array(5)].map((_, i) => (
-                <FaStar key={i} className="text-yellow-400" />
-              ))}
-            </div>
-            <p className="mb-6 italic">"As a driver for QuickDeliver Lite, I love the flexibility. I can work when I want and the earnings are great. The app makes everything so simple."</p>
-            <div className="flex items-center">
-              <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
-              <div className="ml-4">
-                <p className="font-bold">Michael Rodriguez</p>
-                <p className="text-blue-100">Delivery Partner</p>
+        ) : testimonials.length > 0 ? (
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index} 
+                className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                style={{
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                <div className="mb-4">
+                  {renderStars(testimonial.rating)}
+                </div>
+                <p className="mb-6 text-black italic">"{testimonial.comment}"</p>
+                <div className="flex items-center">
+                  <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
+                  <div className="ml-4">
+                    <p className="text-black font-bold">{testimonial.customerName}</p>
+                    <p className="text-blue-500 capitalize">{testimonial.customerRole}</p>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-          
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6">
-            <div className="flex mb-4">
-              {[...Array(5)].map((_, i) => (
-                <FaStar key={i} className="text-yellow-400" />
-              ))}
-            </div>
-            <p className="mb-6 italic">"I use QuickDeliver Lite for my e-commerce business. Their reliable service and affordable rates have helped me scale without worrying about logistics."</p>
-            <div className="flex items-center">
-              <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
-              <div className="ml-4">
-                <p className="font-bold">James Wilson</p>
-                <p className="text-blue-100">Online Store Owner</p>
-              </div>
-            </div>
+        ) : (
+          <div className="max-w-6xl mx-auto text-center py-8">
+            <p className="text-xl">No testimonials available yet. Be the first to review!</p>
           </div>
-        </div>
+        )}
       </section>
       
       <Footer />
