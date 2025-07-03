@@ -135,8 +135,8 @@ const Home = () => {
         </div>
       </section>
       
-      {/* Features */}
-      <section className="py-16 px-4 md:px-12 bg-white">
+      {/* Features Section with ID */}
+      <section id="features" className="py-16 px-4 md:px-12 bg-white">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Why Choose QuickDeliver Lite?</h2>
           <p className="text-gray-600 text-lg">We make delivery simple, fast, and reliable for everyone</p>
@@ -177,8 +177,8 @@ const Home = () => {
         </div>
       </section>
       
-      {/* How It Works */}
-      <section className="py-16 px-4 md:px-12 bg-gray-50">
+      {/* How It Works Section with ID */}
+      <section id="how-it-works" className="py-16 px-4 md:px-12 bg-gray-50">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">How QuickDeliver Lite Works</h2>
           <p className="text-gray-600 text-lg">Simple steps to get your items delivered fast</p>
@@ -260,8 +260,8 @@ const Home = () => {
         </div>
       </section>
       
-      {/* Testimonials */}
-      <section className="py-16 px-4 md:px-12 bg-gradient-to-r from-blue-400 to-indigo-700 text-white">
+      {/* Testimonials Section with ID */}
+      <section id="testimonials" className="py-16 px-4 md:px-12 bg-gradient-to-r from-blue-400 to-indigo-700 text-white">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Customers Say</h2>
           <p className="text-blue-100 text-lg">Real experiences from people who use QuickDeliver Lite</p>
