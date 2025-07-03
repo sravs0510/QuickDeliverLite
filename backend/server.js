@@ -8,7 +8,7 @@ import passport from "./config/passport.js";
 import deliveryRoutes from "./routes/delivery.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import userRoutes from './routes/userRoutes.js';
-
+import adminTokenRoutes from './routes/adminTokenRoutes.js';
 dotenv.config();
 const app = express();
 
@@ -43,7 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/delivery", deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/user', userRoutes);
-
+app.use('/api/admin', adminTokenRoutes);
 // Add a test endpoint
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working!' });
