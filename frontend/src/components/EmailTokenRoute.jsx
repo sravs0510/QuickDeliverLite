@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
@@ -12,7 +13,7 @@ const EmailTokenRoute = ({ children }) => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        const res = await axios.post('/api/admin/verify-token', { token });
+        const res = await axios.post('http://localhost:5000/api/admin/verify-token', { token });
         if (res.data.valid) {
           setAuthorized(true);
         }

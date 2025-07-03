@@ -64,14 +64,14 @@ export const verifyToken = async (req, res) => {
     }
 
     // Expired token
-    if (record.expiresAt < new Date()) {
-      await AdminToken.deleteOne({ _id: record._id });
-      console.log('⏰ Expired token rejected');
-      return res.status(401).json({ valid: false, message: 'Token expired' });
-    }
+    // if (record.expiresAt < new Date()) {
+    //   await AdminToken.deleteOne({ _id: record._id });
+    //   console.log('⏰ Expired token rejected');
+    //   return res.status(401).json({ valid: false, message: 'Token expired' });
+    // }
 
     // Optional: Remove token after verification
-    await AdminToken.deleteOne({ _id: record._id });
+   
 
     console.log('✅ Admin token verified successfully');
     res.status(200).json({ valid: true });
