@@ -9,12 +9,9 @@ import {
   Truck,
   ChevronDown,
 } from 'lucide-react';
-// import ViewDrivers from './ViewDrivers';
-// import ViewCustomers from './ViewCustomers';
-// import DeliveryRequests from './DeliveryRequests';
-// import StatsDashboard from './StatsDashboard';
-// import ManageSystem from './ManageSystem';
-// import axios from 'axios';
+import ViewDrivers from './ViewDrivers';
+import ViewCustomers from './ViewCustomers';
+import StatsDashboard from './StatsDashboard';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
@@ -27,22 +24,19 @@ const AdminDashboard = () => {
     { id: 'stats', label: 'Statistics', icon: BarChart3, color: 'bg-blue-500' },
     { id: 'drivers', label: 'Drivers', icon: Truck, color: 'bg-green-500' },
     { id: 'customers', label: 'Customers', icon: UsersRound, color: 'bg-yellow-500' },
-    { id: 'requests', label: 'Requests', icon: ClipboardList, color: 'bg-purple-500' },
-    { id: 'system', label: 'System Settings', icon: Settings2, color: 'bg-red-500' },
+    { id: 'feedbacks', label: 'Feedbacks', icon: ClipboardList, color: 'bg-purple-500' }
   ];
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'drivers':
-        // return <ViewDrivers />;
+        return <ViewDrivers />;
       case 'customers':
-        // return <ViewCustomers />;
-      case 'requests':
-        // return <DeliveryRequests />;
-      case 'system':
-        // return <ManageSystem />;
+        return <ViewCustomers />;
+      case 'feedbacks':
+        
       default:
-        // return <StatsDashboard />;
+        return <StatsDashboard />;
     }
   };
 
