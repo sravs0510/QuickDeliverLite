@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import AdminDashboard from './AdminDashboard';
 
 const AdminAccessPage = () => {
   const [verified, setVerified] = useState(false);
@@ -35,8 +36,7 @@ const AdminAccessPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold">🎉 Admin Panel Access Granted</h1>
-      <p>Only accessible via secure token link.</p>
+      <AdminDashboard/>
     </div>
   );
 };
