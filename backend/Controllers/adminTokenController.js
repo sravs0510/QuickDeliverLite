@@ -2,6 +2,56 @@ import crypto from 'crypto';
 import AdminToken from '../models/AdminToken.js';
 import { sendTokenEmail } from '../utils/sendTokenEmail.js';
 
+import User from '../models/User.js';
+import DeliveryRequest from '../models/DeliveryRequest.js';
+
+export const getAdminStats = async (req, res) => {
+  try {
+    const totalCustomers = await User.countDocuments({ role: 'Customer' });
+    const totalDrivers = await User.countDocuments({ role: 'Driver' });
+
+    // Only count deliveries that are active
+    const activeStatuses = ['accepted', 'in_transit', 'delivered'];
+    const activeDeliveries = await DeliveryRequest.countDocuments({ status: { $in: activeStatuses } });
+
+    const completedDeliveries = await DeliveryRequest.countDocuments({ status: 'delivered' });
+    const totalRequests = await DeliveryRequest.countDocuments();
+
+    res.status(200).json({
+      totalCustomers,
+      totalDrivers,
+      activeDeliveries,
+      completedDeliveries,
+      totalRequests,
+    });
+  } catch (error) {
+    console.error('Error fetching admin statistics:', error);
+    res.status(500).json({ message: 'Failed to fetch admin statistics' });
+  }
+};
+
+// Get all Customers
+export const getAllCustomers = async (req, res) => {
+  try {
+    const customers = await User.find({ role: 'Customer' }).select('name email mobile');
+    res.status(200).json(customers);
+  } catch (err) {
+    console.error("Error fetching customers:", err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// Get all Drivers
+export const getAllDrivers = async (req, res) => {
+  try {
+    const drivers = await User.find({ role: 'Driver' }).select('name email mobile');
+    res.status(200).json(drivers);
+  } catch (err) {
+    console.error("Error fetching drivers:", err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
 // ✅ Admin emails allowed to request token
 const allowedAdmins = ['chinmayeebyreddy@gmail.com'];
 
