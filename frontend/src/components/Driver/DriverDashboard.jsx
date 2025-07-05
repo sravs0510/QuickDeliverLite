@@ -4,6 +4,7 @@ import PendingDeliveries from './PendingDeliveries';
 import AcceptedDeliveries from './AcceptedDeliveries';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ChatWidget from './ChatWidget';
 
 const DriverDashboard = () => {
   const [activeTab, setActiveTab] = useState('pending');
@@ -195,6 +196,8 @@ const DriverDashboard = () => {
           </div>
         </div>
       </div>
+      {/* Chat Widget */}
+  <ChatWidget userName={userName} />
     </div>
   );
 };

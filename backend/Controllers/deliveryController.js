@@ -215,9 +215,15 @@ export const updateDeliveryStatus = async (req, res) => {
     if (["pending", "accepted"].includes(normalizedStatus)) {
       derivedLocation = delivery.pickupAddress || 'Pickup Location';
     } else if (normalizedStatus === "in_transit") {
-      // You can customize this hardcoded middle location
-      derivedLocation = "Koilakuntla";
-    } else if (normalizedStatus === "delivered") {
+      const middleTowns = [
+        "Koilakuntla", "Nandyal", "Banaganapalle", "Dhone", "Panyam", "Allagadda"
+      ];
+    
+      // Randomly pick one from the list
+      derivedLocation = middleTowns[Math.floor(Math.random() * middleTowns.length)];
+    }
+    
+    else if (normalizedStatus === "delivered") {
       derivedLocation = delivery.dropoffAddress || 'Drop-off Location';
     }
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Truck, MessageSquare, MapPin, User } from 'lucide-react';
+import { Package, Truck, MessageSquare, MapPin, User, ChevronDown } from 'lucide-react';
 import DeliverRequestForm from './DeliverRequestForm';
 import MyDeliveries from './MyDeliveries';
 import TrackDelivery from './TrackDelivery';
 import Feedback from './Feedback';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react'; // At top
+import ChatWidget from './ChatWidget';
 
 function CustomerDashboard() {
   const [activeTab, setActiveTab] = useState('request');
@@ -14,7 +14,6 @@ function CustomerDashboard() {
   const [showDropdown, setShowDropdown] = useState(false);
   const userEmail = localStorage.getItem('userEmail');
   const navigate = useNavigate();
-
 
   const tabs = [
     { id: 'request', label: 'New Delivery', icon: Package, color: 'bg-blue-500' },
@@ -54,7 +53,7 @@ function CustomerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative">
       {/* Header */}
       <div className="bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,7 +89,7 @@ function CustomerDashboard() {
                       <button
                         onClick={() => {
                           localStorage.clear();
-                          window.location.href = '/'; // or redirect to login page
+                          window.location.href = '/';
                         }}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
@@ -128,11 +127,14 @@ function CustomerDashboard() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-xl overflow-hidden">
           {renderContent()}
         </div>
       </main>
+
+      {/* Chat Widget at Bottom Right */}
+      <ChatWidget userName={userName} />
     </div>
   );
 }
