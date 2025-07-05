@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema(
     mobile: {type: String,required: true,},
     otp: String,
     otpExpiry: Date,
-    googleId: { type: String, unique: true, sparse: true },
+    googleId: { type: String, unique: true, sparse: true }
+    profileImage: { type: String }
   },
   { timestamps: true }
 );

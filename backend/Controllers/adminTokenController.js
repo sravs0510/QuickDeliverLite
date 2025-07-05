@@ -11,7 +11,7 @@ export const getAdminStats = async (req, res) => {
     const totalDrivers = await User.countDocuments({ role: 'Driver' });
 
     // Only count deliveries that are active
-    const activeStatuses = ['accepted', 'in_transit', 'delivered'];
+    const activeStatuses = ['accepted', 'in_transit'];
     const activeDeliveries = await DeliveryRequest.countDocuments({ status: { $in: activeStatuses } });
 
     const completedDeliveries = await DeliveryRequest.countDocuments({ status: 'delivered' });

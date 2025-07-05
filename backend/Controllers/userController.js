@@ -2,38 +2,41 @@ import User from '../models/User.js';
 
 import bcrypt from 'bcryptjs';
 
-
+import cloudinary from '../utils/cloudinary.js'; // ← use cloudinary if image is being uploaded
 
 export const updateProfileByEmail = async (req, res) => {
-    try {
-      const { email, name, password, mobile } = req.body;
-  
-      const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ error: 'User not found' });
-  
-      const updateFields = {
-        name,
-        mobile
-      };
-  
-      if (password && password.trim() !== '') {
-        const salt = await bcrypt.genSalt(10);
-        updateFields.password = await bcrypt.hash(password, salt);
-      }
-  
-      const updatedUser = await User.findOneAndUpdate(
-        { email },
-        { $set: updateFields },
-        { new: true, runValidators: true }
-      ).select('-otp -otpExpiry -__v -createdAt -updatedAt -googleId');
-  
-      res.json(updatedUser);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      res.status(500).json({ error: 'Server error' });
+  try {
+    const { email, name, password, mobile } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const updateFields = { name, mobile };
+
+    // 🌤️ Handle image upload to cloudinary
+    if (req.file && req.file.path) {
+      updateFields.profileImage = req.file.path;
+    }    
+
+    // 🔐 Handle password
+    if (password && password.trim() !== '') {
+      const salt = await bcrypt.genSalt(10);
+      updateFields.password = await bcrypt.hash(password, salt);
     }
-  };
-  
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select('-otp -otpExpiry -__v -createdAt -updatedAt -googleId');
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 
 export const getUserByEmail = async (req, res) => {
   try {

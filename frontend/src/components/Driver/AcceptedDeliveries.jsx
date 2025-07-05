@@ -159,12 +159,21 @@ const AcceptedDeliveries = () => {
                       <span>{getStatusText(delivery.status)}</span>
                     </div>
 
-                    {delivery.feedbackGiven && (
-                      <div className="inline-flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold border border-green-200">
-                        <MessageCircleHeart className="h-4 w-4" />
-                        <span>Feedback</span>
+                    {delivery.feedbackGiven && delivery.feedback && (
+                      <div className="mt-4 border-t pt-4">
+                        <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-1 mb-2">
+                          <MessageCircleHeart className="h-4 w-4 text-green-600" />
+                          Delivery Feedback
+                        </h4>
+                        <div className="text-sm text-gray-700 space-y-1">
+                          <p><span className="font-medium">Rating:</span> {delivery.feedback.rating} ⭐</p>
+                          <p><span className="font-medium">Category:</span> {delivery.feedback.category}</p>
+                          <p><span className="font-medium">Comment:</span> {delivery.feedback.comment || "No additional comment"}</p>
+                          <p className="text-xs text-gray-500"><span className="font-medium">Date:</span> {new Date(delivery.feedback.date).toLocaleDateString()}</p>
+                        </div>
                       </div>
                     )}
+
                   </div>
                 </div>
 

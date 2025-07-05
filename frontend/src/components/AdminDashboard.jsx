@@ -21,6 +21,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('stats');
   const [adminName, setAdminName] = useState('Admin');
   const [showDropdown, setShowDropdown] = useState(false);
+
   const [unreadTotal, setUnreadTotal] = useState(0); // 🔴 For unseen messages
   const navigate = useNavigate();
 
