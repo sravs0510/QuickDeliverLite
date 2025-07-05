@@ -9,6 +9,8 @@ import deliveryRoutes from "./routes/delivery.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import userRoutes from './routes/userRoutes.js';
 import adminTokenRoutes from './routes/adminTokenRoutes.js';
+import chatRoute from './routes/chat.js';
+
 dotenv.config();
 const app = express();
 
@@ -44,6 +46,8 @@ app.use("/api/delivery", deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminTokenRoutes);
+app.use('/api/chat', chatRoute);
+
 // Add a test endpoint
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working!' });
