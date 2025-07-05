@@ -165,8 +165,8 @@ export const accepted = async (req, res) => {
     const deliveries = await DeliveryRequest.find({
       "driver.email": email,
       status: { $in: ["accepted", "in_transit", "delivered"] },
-    });
-
+    })
+      .sort({ timestamp: -1 });
     const customerEmails = [...new Set(deliveries.map((d) => d.email))];
     const users = await User.find({ email: { $in: customerEmails } });
 
@@ -190,7 +190,7 @@ export const accepted = async (req, res) => {
 // ✅ Update status of a delivery
 export const updateDeliveryStatus = async (req, res) => {
   const { id } = req.params;
-  const { newStatus, location } = req.body;
+  const { newStatus } = req.body;
 
   try {
     const delivery = await DeliveryRequest.findById(id);
@@ -198,6 +198,7 @@ export const updateDeliveryStatus = async (req, res) => {
       return res.status(404).json({ message: "Delivery not found" });
     }
 
+    // Mark all existing timeline events as completed & not current
     delivery.timeline = delivery.timeline.map((event) => ({
       ...event,
       current: false,
@@ -205,25 +206,42 @@ export const updateDeliveryStatus = async (req, res) => {
     }));
 
     const now = new Date();
+
+    // Derive location based on status
+    let derivedLocation = 'Unknown';
+
+    const normalizedStatus = newStatus.toLowerCase();
+
+    if (["pending", "accepted"].includes(normalizedStatus)) {
+      derivedLocation = delivery.pickupAddress || 'Pickup Location';
+    } else if (normalizedStatus === "in_transit") {
+      // You can customize this hardcoded middle location
+      derivedLocation = "Koilakuntla";
+    } else if (normalizedStatus === "delivered") {
+      derivedLocation = delivery.dropoffAddress || 'Drop-off Location';
+    }
+
     const newTimelineEntry = {
       status: newStatus.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
       time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       date: now.toDateString(),
-      location: location || delivery.currentLocation || 'Unknown',
+      location: derivedLocation,
       completed: false,
       current: true,
     };
 
     delivery.timeline.push(newTimelineEntry);
     delivery.status = newStatus;
-    delivery.currentLocation = location || delivery.currentLocation;
+    delivery.currentLocation = derivedLocation;
 
     await delivery.save();
+
     res.status(200).json({ message: "Status updated", delivery });
   } catch (err) {
     res.status(500).json({ message: "Error updating delivery status", error: err.message });
   }
 };
+
 
 // ✅ Track delivery by tracking ID
 export const trackDeliveryById = async (req, res) => {

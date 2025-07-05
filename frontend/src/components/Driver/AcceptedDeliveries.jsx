@@ -1,26 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { MapPin, Clock, Phone, Package, CheckCircle, Truck, Navigation } from 'lucide-react';
+import {
+  MapPin,
+  Clock,
+  Phone,
+  Package,
+  CheckCircle,
+  Truck,
+  Navigation,
+  MessageCircleHeart
+} from 'lucide-react';
 
-const AcceptedDeliveries = ({ onStatusChange }) => {
+const AcceptedDeliveries = () => {
   const [deliveries, setDeliveries] = useState([]);
   const [driverEmail, setDriverEmail] = useState("");
 
   useEffect(() => {
-    // Get email from localStorage
     const storedEmail = localStorage.getItem("userEmail");
     const storedRole = localStorage.getItem("userRole");
 
     if (storedEmail && storedRole === "Driver") {
       setDriverEmail(storedEmail);
-
       axios
         .get(`http://localhost:5000/api/delivery/accepted?email=${storedEmail}`)
         .then((res) => setDeliveries(res.data))
         .catch((err) => console.error("Error fetching accepted deliveries:", err));
     }
   }, []);
-
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -68,14 +74,13 @@ const AcceptedDeliveries = ({ onStatusChange }) => {
   const handleStatusChange = (id, newStatus) => {
     axios
       .put(`http://localhost:5000/api/delivery/status/${id}`, { newStatus })
-      .then((res) => {
+      .then(() => {
         setDeliveries((prev) =>
           prev.map((d) => (d._id === id ? { ...d, status: newStatus } : d))
         );
       })
       .catch((err) => console.error("Failed to update status:", err));
   };
-
 
   if (deliveries.length === 0) {
     return (
@@ -91,7 +96,7 @@ const AcceptedDeliveries = ({ onStatusChange }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Your Active Deliveries</h2>
-        <p className="text-sm text-gray-600">{deliveries.length} active delivery{deliveries.length !== 1 ? 's' : ''}</p>
+        <p className="text-sm text-gray-600">{deliveries.length} active delivery{deliveries.length !== 1 ? 'ies' : ''}</p>
       </div>
 
       <div className="grid gap-6">
@@ -105,22 +110,30 @@ const AcceptedDeliveries = ({ onStatusChange }) => {
                     <CheckCircle className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{delivery.driverName}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{delivery.driver?.name}</h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Phone className="h-4 w-4" />
                       <span>{delivery.customerMobile}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+
+                <div className="flex items-center space-x-2">
                   <div className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(delivery.status)}`}>
                     {getStatusIcon(delivery.status)}
                     <span>{getStatusText(delivery.status)}</span>
                   </div>
+
+                  {delivery.feedbackGiven && (
+                    <div className="inline-flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold border border-green-200">
+                      <MessageCircleHeart className="h-4 w-4" />
+                      <span>Feedback</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Delivery Details */}
+              {/* Delivery Info */}
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
@@ -138,32 +151,37 @@ const AcceptedDeliveries = ({ onStatusChange }) => {
                     </div>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Package Type</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-900">Package Size</span>
                     <span className="text-sm text-gray-600">{delivery.packageSize}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex justify-between">
                     <span className="text-sm font-medium text-gray-900">Priority</span>
                     <span className="text-sm text-gray-600">{delivery.priority}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex justify-between">
                     <span className="text-sm font-medium text-gray-900">Delivery Date</span>
                     <span className="text-sm text-gray-600">{delivery.deliveryDate}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Delivery Time</span>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-900">Time</span>
                     <span className="text-sm text-gray-600">{delivery.deliveryTime}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-between items-center">
-                <button className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors duration-200">
-                  <Navigation className="h-4 w-4" />
-                  <span>Get Directions</span>
-                </button>
+              {/* Optional Feedback Details */}
+              {delivery.feedbackGiven && delivery.feedback && (
+                <div className="bg-gray-50 p-4 mt-4 rounded-lg border border-gray-200 text-sm text-gray-700 space-y-1">
+                  <p><strong>⭐ Rating:</strong> {delivery.feedback.rating}/5</p>
+                  <p><strong>💬 Comment:</strong> {delivery.feedback.comment}</p>
+                  <p><strong>📂 Category:</strong> {delivery.feedback.category}</p>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <div className="flex justify-end mt-6">
                 {delivery.status !== 'delivered' ? (
                   <button
                     onClick={() => handleStatusChange(delivery._id, getNextStatus(delivery.status))}
@@ -177,7 +195,6 @@ const AcceptedDeliveries = ({ onStatusChange }) => {
                     <span>Delivery Complete</span>
                   </div>
                 )}
-
               </div>
             </div>
           </div>

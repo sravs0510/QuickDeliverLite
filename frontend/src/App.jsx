@@ -14,6 +14,8 @@ import DriverDashboard from './components/Driver/DriverDashboard';
 import AdminRequest from './components/AdminRequest';
 import AdminAccessPage from './components/AdminAccessPage';
 import EmailTokenRoute from './components/EmailTokenRoute';
+import MapTracker from './components/MapTracker';
+import AiChatbot from './components/AiChatbot';
 
 const App = () => {
   return (
@@ -31,6 +33,8 @@ const App = () => {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/view-profile" element={<ProfilePage />} />
         <Route path="/request-admin-access" element={<AdminRequest />} />
+        <Route path="/track-map" element={<MapTracker />} />
+        <Route path="/chatbot" element={<AiChatbot/>} />
 
         {/* ✅ Protected token-based access route */}
         <Route

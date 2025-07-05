@@ -1,49 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { GoogleMap, Marker, LoadScript, Polyline } from '@react-google-maps/api';
-
-const containerStyle = {
-  width: '100%',
-  height: '400px'
-};
-
-// Route from Nandyal to Tadipatri (mocked lat/lng)
-const routeCoords = [
-  { lat: 15.4887, lng: 78.4867 }, // Nandyal
-  { lat: 15.3774, lng: 78.5400 }, // Koilakuntla
-  { lat: 14.8128, lng: 78.3708 }, // Jammalamadugu
-  { lat: 14.9123, lng: 78.0090 }  // Tadipatri
-];
+// src/pages/TrackMap.jsx
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const MapTracker = () => {
-  const [index, setIndex] = useState(0);
+  const [coords, setCoords] = useState([15.4786, 78.4836]); // Default to Nandyal
+  const [locationName, setLocationName] = useState('');
 
-  // Move marker every 5 seconds
+  const getLocationCoords = async (location) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`);
+      const data = await res.json();
+      if (data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        setCoords([lat, lon]);
+        setLocationName(location);
+      }
+    } catch (err) {
+      console.error("Error fetching coordinates:", err);
+    }
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => {
-        if (prevIndex < routeCoords.length - 1) {
-          return prevIndex + 1;
-        } else {
-          clearInterval(interval);
-          return prevIndex;
-        }
-      });
-    }, 5000);
-
-    return () => clearInterval(interval);
+    const params = new URLSearchParams(window.location.search);
+    const location = params.get('location');
+    if (location) {
+      getLocationCoords(location);
+    }
   }, []);
 
+  const markerIcon = new L.Icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+    iconSize: [35, 35],
+  });
+
   return (
-    <LoadScript googleMapsApiKey="AIzaSyAdSPWPgx9DZkxnlwkvWWB1GZzlsnozcTU">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={routeCoords[0]}
-        zoom={9}
-      >
-        <Polyline path={routeCoords} options={{ strokeColor: '#1e90ff', strokeWeight: 4 }} />
-        <Marker position={routeCoords[index]} icon="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" />
-      </GoogleMap>
-    </LoadScript>
+    <div className="h-screen w-full">
+      <MapContainer center={coords} zoom={10} scrollWheelZoom={true} className="h-full w-full z-0">
+        <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={coords} icon={markerIcon}>
+          <Popup>{locationName || 'Current Delivery Location'}</Popup>
+        </Marker>
+      </MapContainer>
+    </div>
   );
 };
 

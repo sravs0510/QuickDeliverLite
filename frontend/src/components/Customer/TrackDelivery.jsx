@@ -171,21 +171,18 @@ const TrackDelivery = () => {
                     </div>
                     <div className={`flex-1 pb-4 ${event.current ? 'bg-blue-50 -mx-4 px-4 py-2 rounded-lg' : ''}`}>
                       <div className="flex items-center justify-between">
-                        <h4 className={`font-medium ${
-                          event.current ? 'text-blue-900' : event.completed ? 'text-gray-900' : 'text-gray-500'
-                        }`}>
+                        <h4 className={`font-medium ${event.current ? 'text-blue-900' : event.completed ? 'text-gray-900' : 'text-gray-500'
+                          }`}>
                           {event.status}
                           {event.current && <span className="ml-2 text-blue-600 text-sm">(Current)</span>}
                         </h4>
-                        <div className={`text-sm ${
-                          event.current ? 'text-blue-600' : event.completed ? 'text-gray-600' : 'text-gray-400'
-                        }`}>
+                        <div className={`text-sm ${event.current ? 'text-blue-600' : event.completed ? 'text-gray-600' : 'text-gray-400'
+                          }`}>
                           {event.time} • {event.date}
                         </div>
                       </div>
-                      <p className={`text-sm mt-1 ${
-                        event.current ? 'text-blue-700' : event.completed ? 'text-gray-600' : 'text-gray-400'
-                      }`}>
+                      <p className={`text-sm mt-1 ${event.current ? 'text-blue-700' : event.completed ? 'text-gray-600' : 'text-gray-400'
+                        }`}>
                         {event.location}
                       </p>
                     </div>
@@ -198,11 +195,16 @@ const TrackDelivery = () => {
           {/* Action Buttons */}
           <div className="flex justify-center space-x-4">
             <a
-              href={`tel:${trackingData?.driver?.phone || ''}`}
+              href={`https://wa.me/91${trackingData?.driver?.phone}?text=${encodeURIComponent(
+                `Hi ${trackingData?.driver?.name}, I am tracking my delivery ${trackingData?.trackingId}. Where are you now?`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-blue-100 text-blue-700 px-6 py-3 rounded-xl font-medium hover:bg-blue-200 transition-colors duration-200"
             >
-              Call Driver
+              WhatsApp Driver
             </a>
+
             <button
               onClick={() => {
                 if (trackingData?.currentLocation) {

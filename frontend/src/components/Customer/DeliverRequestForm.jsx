@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MapPin, Package, FileText, Calendar, Clock, DollarSign } from 'lucide-react';
+import { MapPin, Package, FileText, Calendar, Clock, DollarSign, CheckCircle } from 'lucide-react';
 
 const DeliverRequestForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,8 @@ const DeliverRequestForm = () => {
     email: ''
   });
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   // Auto-fill email from localStorage
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
@@ -22,16 +24,15 @@ const DeliverRequestForm = () => {
     }
   }, []);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/delivery', formData); // Adjust URL as needed
+      const response = await axios.post('http://localhost:5000/api/delivery', formData);
       console.log('Delivery request:', response.data);
-      alert('Delivery request submitted successfully!');
-      
-      // Optionally reset form
+      setShowSuccess(true);
+
+      // Reset form after successful submission
       setFormData({
         pickupAddress: '',
         dropoffAddress: '',
@@ -40,8 +41,13 @@ const DeliverRequestForm = () => {
         deliveryTime: 'anytime',
         packageSize: 'small',
         priority: 'standard',
-        email: ''
+        email: localStorage.getItem("userEmail") || ''
       });
+
+      // Auto-hide the success message after 4 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 4000);
     } catch (error) {
       console.error('Error submitting delivery request:', error);
       alert('Failed to submit delivery request.');
@@ -56,14 +62,27 @@ const DeliverRequestForm = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="relative p-8">
+      {/* Success Message Modal */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-blue bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl text-center animate-bounceIn scale-95">
+            <CheckCircle className="text-green-600 w-16 h-16 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Delivery Scheduled!</h2>
+            <p className="text-gray-600">Your request has been submitted successfully.</p>
+            <p className="text-blue-500 mt-2">Redirecting back to form...</p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Request a Delivery</h2>
         <p className="text-gray-600">Fill in the details below to schedule your delivery</p>
       </div>
 
+      {/* Delivery Form */}
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Address Section */}
+        {/* Pickup and Dropoff Address */}
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <label className="block">
@@ -165,7 +184,7 @@ const DeliverRequestForm = () => {
           </div>
         </div>
 
-        {/* Schedule Section */}
+        {/* Delivery Schedule */}
         <div className="grid md:grid-cols-2 gap-6">
           <label className="block">
             <div className="flex items-center space-x-2 mb-2">
@@ -202,7 +221,7 @@ const DeliverRequestForm = () => {
           </label>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="flex justify-center pt-6">
           <button
             type="submit"
