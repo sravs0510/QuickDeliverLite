@@ -1,11 +1,11 @@
 import express from 'express';
-import { getUserByEmail , getFullProfileByEmail,
-    updateProfileByEmail} from '../Controllers/userController.js';
+import { updateProfileByEmail, getFullProfileByEmail, getUserByEmail } from '../Controllers/userController.js';
+import upload from '../middlewares/multer.js'; // ✅ Correct Cloudinary middleware
 
 const router = express.Router();
 
+router.put('/updateProfile', upload.single('profileImage'), updateProfileByEmail);
+router.get('/getFullProfile', getFullProfileByEmail);
 router.get('/getUserByEmail', getUserByEmail);
-router.get('/getFullProfile', getFullProfileByEmail); // for profile page view
-router.put('/updateProfile', updateProfileByEmail);   // for saving profile edits
 
 export default router;

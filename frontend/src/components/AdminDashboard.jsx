@@ -13,6 +13,7 @@ import {
 import ViewDrivers from './ViewDrivers';
 import ViewCustomers from './ViewCustomers';
 import StatsDashboard from './StatsDashboard';
+import Feedback from './Feedback';
 import { useNavigate } from 'react-router-dom';
 import AdminChatPanel from './AdminChatPanel';
 
@@ -45,7 +46,7 @@ const AdminDashboard = () => {
       case 'customers':
         return <ViewCustomers />;
       case 'feedbacks':
-        return <div className="p-4">Feedbacks Page Coming Soon</div>;
+        return <Feedback />;
       case 'chat':
         return <AdminChatPanel onUnreadCountChange={setUnreadTotal} />;
       default:
