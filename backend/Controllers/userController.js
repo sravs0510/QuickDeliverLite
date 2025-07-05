@@ -49,6 +49,9 @@ export const getUserByEmail = async (req, res) => {
   }
 };
 
+
+
+
 // Add this below the above function in the same file
 export const getFullProfileByEmail = async (req, res) => {
     try {
