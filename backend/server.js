@@ -1,17 +1,21 @@
-  import express from "express";
-  import dotenv from "dotenv";
-  import cors from "cors";
-  import http from "http";
-  import session from "express-session";
-  import connectDB from "./config/db.js";
-  import authRoutes from "./routes/auth.js";
-  import passport from "./config/passport.js";
-  import deliveryRoutes from "./routes/delivery.js";
-  import feedbackRoutes from "./routes/feedbackRoutes.js";
-  import userRoutes from './routes/userRoutes.js';
-  import adminTokenRoutes from './routes/adminTokenRoutes.js';
-  import chatRoute from './routes/chat.js';
-  import { initSocket } from "./socket.js";
+
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import http from "http";
+import session from "express-session";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/auth.js";
+import passport from "./config/passport.js";
+import deliveryRoutes from "./routes/delivery.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
+import userRoutes from './routes/userRoutes.js';
+import adminTokenRoutes from './routes/adminTokenRoutes.js';
+import { initSocket } from "./socket.js";
+import otpRoutes from './routes/otpRoutes.js';
+
+  
+
 
   dotenv.config();
   const app = express();
@@ -50,19 +54,23 @@
     saveUninitialized: false,
   }));
 
+
+connectDB();
+app.use("/api/auth", authRoutes);
+app.use("/api/delivery", deliveryRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/admin', adminTokenRoutes);
+app.use('/api/otp', otpRoutes);
+=======
   app.use(passport.initialize());
   app.use(passport.session());
 
   // Database connection
-  connectDB();
+ 
 
-  // Routes
-  app.use("/api/auth", authRoutes);
-  app.use("/api/delivery", deliveryRoutes);
-  app.use('/api/feedback', feedbackRoutes);
-  app.use('/api/user', userRoutes);
-  app.use('/api/admin', adminTokenRoutes);
-  app.use('/api/chat', chatRoute);
+
+
 
   // Test endpoint
   app.get('/api/test', (req, res) => {
