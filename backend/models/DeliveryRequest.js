@@ -38,7 +38,7 @@ const deliveryRequestSchema = new mongoose.Schema({
   email: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
   feedbackGiven: { type: Boolean, default: false },
-
+  otp: { type: String, default: null }, 
   driver: driverSchema,
   timeline: [timelineSchema],
 
