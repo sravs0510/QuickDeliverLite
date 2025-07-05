@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaTruck } from 'react-icons/fa'; 
 
@@ -8,7 +8,7 @@ const Navbar = () => {
   const location = useLocation();
 
   // List of routes where Navbar should be shown
-  const visibleRoutes = ['/', '/signup', '/login'];
+  const visibleRoutes = ['/', '/login', '/signup'];
 
   // If current path is not in the list, hide Navbar
   if (!visibleRoutes.includes(location.pathname)) {
@@ -39,13 +39,16 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  // Check if current route is login or signup
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+
   return (
     <nav className="bg-gray-100 shadow-sm px-4 py-3">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
        
         <Link to="/" className="flex items-center space-x-3">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
-            <FaTruck className="h-8 w-8 text-white" /> {/* Use FaTruck icon */}
+            <FaTruck className="h-8 w-8 text-white" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">QuickDeliverLite</h1>
@@ -58,36 +61,68 @@ const Navbar = () => {
             Home
           </Link>
           
-          {/* Section Links */}
-          <button 
-            onClick={() => scrollToSection('features')}
-            className="text-gray-700 hover:text-blue-600 cursor-pointer"
-          >
-            Features
-          </button>
-          
-          <button 
-            onClick={() => scrollToSection('how-it-works')}
-            className="text-gray-700 hover:text-blue-600 cursor-pointer"
-          >
-            How It Works
-          </button>
-          
-          <button 
-            onClick={() => scrollToSection('testimonials')}
-            className="text-gray-700 hover:text-blue-600 cursor-pointer"
-          >
-            Testimonials
-          </button>
+          {/* Show section links only on homepage */}
+          {location.pathname === '/' && (
+            <>
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-gray-700 hover:text-blue-600 cursor-pointer"
+              >
+                Features
+              </button>
+              
+              <button 
+                onClick={() => scrollToSection('how-it-works')}
+                className="text-gray-700 hover:text-blue-600 cursor-pointer"
+              >
+                How It Works
+              </button>
+              
+              <button 
+                onClick={() => scrollToSection('testimonials')}
+                className="text-gray-700 hover:text-blue-600 cursor-pointer"
+              >
+                Testimonials
+              </button>
+            </>
+          )}
 
-          {/* Login Button */}
+          {/* Login/Logout Button */}
           {!token ? (
-            <Link
-              to="/login"
-              className="border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white px-3 py-1 rounded transition"
-            >
-              Login
-            </Link>
+            <>
+              {isAuthPage ? (
+                location.pathname === '/login' ? (
+                  <Link
+                    to="/signup"
+                    className="border border-green-500 text-green-600 hover:bg-green-500 hover:text-white px-3 py-1 rounded transition"
+                  >
+                    Register
+                  </Link>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white px-3 py-1 rounded transition"
+                  >
+                    Login
+                  </Link>
+                )
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white px-3 py-1 rounded transition"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="border border-green-500 text-green-600 hover:bg-green-500 hover:text-white px-3 py-1 rounded transition"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
+            </>
           ) : (
             <button
               onClick={handleLogout}
@@ -96,20 +131,10 @@ const Navbar = () => {
               Logout
             </button>
           )}
-
-          {/* Register*/}
-          {!token && (
-            <Link
-              to="/signup"
-              className="border border-green-500 text-green-600 hover:bg-green-500 hover:text-white px-3 py-1 rounded transition"
-            >
-              Register
-            </Link>
-          )}
         </div>
       </div>
     </nav>
   );
 };
 
-export default Navbar;  
+export default Navbar;

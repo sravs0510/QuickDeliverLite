@@ -8,4 +8,5 @@ router.get('/getUserByEmail', getUserByEmail);
 router.get('/getFullProfile', getFullProfileByEmail); // for profile page view
 router.put('/updateProfile', updateProfileByEmail);   // for saving profile edits
 
+
 export default router;

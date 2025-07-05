@@ -5,7 +5,8 @@ import {
   getAllFeedback,
   getDeliveredDeliveries,
   getDriverFeedback,
-  getRecentFeedbacks 
+  getRecentFeedbacks,
+
 } from '../Controllers/feedbackController.js';
 
 const router = express.Router();
@@ -15,5 +16,7 @@ router.get('/all', getAllFeedback);
 router.get('/deliveries', getDeliveredDeliveries);
 router.get('/driver/:name', getDriverFeedback);
 router.get('/recent-feedbacks', getRecentFeedbacks); 
+
+
 
 export default router;
