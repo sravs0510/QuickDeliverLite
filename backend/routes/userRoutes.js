@@ -8,4 +8,5 @@ router.put('/updateProfile', upload.single('profileImage'), updateProfileByEmail
 router.get('/getFullProfile', getFullProfileByEmail);
 router.get('/getUserByEmail', getUserByEmail);
 
+
 export default router;

@@ -62,12 +62,13 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminTokenRoutes);
 app.use('/api/otp', otpRoutes);
-
+=======
   app.use(passport.initialize());
   app.use(passport.session());
 
   // Database connection
  
+
 
 
 
