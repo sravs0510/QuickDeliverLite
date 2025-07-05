@@ -132,7 +132,7 @@ const AcceptedDeliveries = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">Your Active Deliveries</h2>
-          <p className="text-sm text-gray-600">{deliveries.length} active delivery{deliveries.length !== 1 ? 'ies' : ''}</p>
+          <p className="text-sm text-gray-600">{deliveries.length} active deliver{deliveries.length !== 1 ? 'ies' : ''}</p>
         </div>
 
         <div className="grid gap-6">

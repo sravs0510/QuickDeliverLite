@@ -10,7 +10,6 @@ import deliveryRoutes from "./routes/delivery.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import userRoutes from './routes/userRoutes.js';
 import adminTokenRoutes from './routes/adminTokenRoutes.js';
-import chatRoute from './routes/chat.js';
 import { initSocket } from "./socket.js";
 import otpRoutes from './routes/otpRoutes.js';
 
@@ -50,7 +49,6 @@ app.use("/api/delivery", deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminTokenRoutes);
-app.use('/api/chat', chatRoute);
 app.use('/api/otp', otpRoutes);
 
 
