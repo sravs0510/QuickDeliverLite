@@ -110,7 +110,7 @@ const AcceptedDeliveries = () => {
                     <CheckCircle className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{delivery.driver?.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{delivery.email}</h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Phone className="h-4 w-4" />
                       <span>{delivery.customerMobile}</span>
